@@ -1,0 +1,9 @@
+schema_version: 1
+module_path: ""
+title: 智能销售预测系统高保真原型
+scope:
+    - sales-forecast-prototype.html
+    - sales-forecast-prototype_副本.html
+source_files: []
+depends_on: []
+related_to: []

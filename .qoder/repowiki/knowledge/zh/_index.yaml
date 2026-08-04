@@ -1,0 +1,17 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: zh-CN
+branch: Q0DeR-MaG1C-BrAnCh-Fo2-NoN-GiT-Or-No-C0MmIt
+nodes_managed: true
+exported_at: "2026-08-03T10:46:34Z"
+modules:
+    "":
+        dir_name: 智能销售预测系统高保真原型
+        title: 智能销售预测系统高保真原型
+        scope:
+            - sales-forecast-prototype.html
+            - sales-forecast-prototype_副本.html
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []
