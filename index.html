@@ -37,8 +37,113 @@ function tag(s){return `<span class="tag ${statusCls[s]||'graytag'}">${s}</span>
 function setPage(p){document.querySelectorAll('.m2').forEach(x=>x.classList.toggle('on',x.dataset.page===p)); if(p==='summary')summary(); else if(p==='ratio')ratioPage(); else if(p==='exception')exceptionPage(); else placeholder(p)}
 document.querySelectorAll('.m2').forEach(x=>x.onclick=()=>setPage(x.dataset.page));
 function filters(extra=''){return `<div class="card bar"><label>事业部</label><select><option>全部</option><option>电子事业部</option><option>通信事业部</option></select><label>大区</label><select><option>全部</option><option>华东大区</option><option>华南大区</option></select><label>国区</label><select><option>全部</option><option>沪苏国区</option><option>粤泰国区</option></select><label>月份</label><select>${months.map(x=>`<option>${x}</option>`).join('')}</select><button class="btn">查询</button><button class="btn ghost">重置</button>${extra}</div>`}
-function qSelect(label,opts){return `<div class="field"><label>${label}</label><select multiple size="1" title="支持按编码/名称模糊查询和精准查询，支持单选/多选"><option value="">全部</option>${opts.map(o=>`<option>${o}</option>`).join('')}</select></div>`}
-function summaryFilters(type){let area=['A01 华东大区','A02 华南大区','A03 华北大区'],prod=['P1001 智能终端A1','P2001 数据模块B2','P3001 控制模组C3'],zone=['Z01 沪苏国区','Z02 浙闽国区','Z03 粤泰国区','Z04 京津冀国区'],country=['CN 中国','JP 日本','SG 新加坡','TH 泰国'],war=['W01 华东作战区','W02 苏南作战区','W03 珠三角作战区','W04 华北作战区'],bu=['BU01 电子事业部','BU02 通信事业部'];let fields=[];if(type==='area')fields=[qSelect('大区编码/大区名称',area),qSelect('产品编码/产品名称',prod)];if(type==='zone')fields=[qSelect('大区编码/大区名称',area),qSelect('产品编码/产品名称',prod),qSelect('国区编码/国区名称',zone)];if(type==='country')fields=[qSelect('国家编码/国家名称',country),qSelect('大区编码/大区名称',area),qSelect('产品编码/产品名称',prod),qSelect('国区编码/国区名称',zone),qSelect('作战区域编码/作战区域名称',war)];if(type==='detail')fields=[`<div class="field"><label>数据来源</label><select id="srcFilter" multiple size="1" onchange="updateDemandTypeOptions()"><option>例外需求</option><option>历史销售预测</option><option>确定性需求</option><option>先行指标预测</option></select></div>`,`<div class="field"><label>需求类型</label><select id="typeFilter" multiple size="1"><option>风险备货</option><option>MTS备货</option><option>退市产品需求提交</option><option>新品上市需求提交</option><option>其他类型</option><option>历史销售预测</option><option>商机</option><option>线索</option><option>订单</option><option>合同</option><option>先行指标预测</option></select></div>`,qSelect('国家编码/国家名称',country),qSelect('大区编码/大区名称',area),qSelect('产品编码/产品名称',prod),qSelect('国区编码/国区名称',zone),qSelect('作战区域编码/作战区域名称',war),qSelect('事业部编码/事业部名称',bu),`<div class="field"><label>创建时间起</label><input type="datetime-local"></div>`,`<div class="field"><label>创建时间止</label><input type="datetime-local"></div>`];return `<div class="card"><div style="display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px;align-items:end">${fields.join('')}<div class="field"><label>&nbsp;</label><button class="btn" onclick="summaryQuery('${type}')">查询</button><button class="btn ghost" style="margin-left:8px" onclick="summaryReset('${type}')">重置</button></div></div><div class="hint">下拉条件支持按编码/名称模糊查询和精准查询，支持单选/多选；查询时已填条件之间为 AND 关系。</div></div>`}
+// 用户信息模拟（实际项目通过 useUserInfo / API 获取）
+const userInfo = { areaCode: 'A01', areaName: '华东大区', zoneCode: 'Z01', zoneName: '沪苏国区', cCode: 'CN', cName: '中国', warCode: 'W01', warName: '华东作战区' };
+// 当前月份默认值
+function currentMonth() { let d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+// 近30天日期范围
+function recent30Days() { let end = new Date(); let start = new Date(); start.setDate(start.getDate() - 29); let fmt = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); return { start: fmt(start), end: fmt(end) }; }
+
+// 通用下拉选（支持单选/多选、模糊/精准查询）
+function qSelect(label, opts, opts2) {
+  let multi = opts2 && opts2.multi !== false;
+  let req = opts2 && opts2.req;
+  let def = opts2 && opts2.def;
+  let ph = opts2 && opts2.placeholder;
+  return '<div class="field"><label' + (req ? ' class="req"' : '') + '>' + label + '</label><select' + (multi ? ' multiple size="1"' : '') + ' title="支持按编码/名称模糊查询和精准查询">' +
+    (multi ? '<option value="">全部</option>' : '<option value="">请选择</option>') +
+    opts.map(function(o) { return '<option' + (def && o.indexOf(def) === 0 ? ' selected' : '') + '>' + o + '</option>'; }).join('') +
+    '</select>' + (ph ? '<div class="hint">' + ph + '</div>' : '') + '</div>';
+}
+// 文本输入框
+function qInput(label, opts2) {
+  let req = opts2 && opts2.req;
+  let ph = (opts2 && opts2.placeholder) || '请输入';
+  return '<div class="field"><label' + (req ? ' class="req"' : '') + '>' + label + '</label><input placeholder="' + ph + '"></div>';
+}
+// 月份选择器
+function qMonth(label, opts2) {
+  let req = opts2 && opts2.req;
+  let def = (opts2 && opts2.def) || currentMonth();
+  return '<div class="field"><label' + (req ? ' class="req"' : '') + '>' + label + '</label><input type="month" value="' + def + '"></div>';
+}
+// 日期范围选择器
+function qDateRange(label, opts2) {
+  let r = recent30Days();
+  let defStart = (opts2 && opts2.defStart) || r.start;
+  let defEnd = (opts2 && opts2.defEnd) || r.end;
+  return '<div class="field"><label>' + label + '</label><div style="display:flex;gap:6px;align-items:center"><input type="date" value="' + defStart + '"><span>~</span><input type="date" value="' + defEnd + '"></div></div>';
+}
+
+// 3+9汇总查询条件（按维度类型分别配置）
+function summaryFilters(type) {
+  let area = ['A01 华东大区', 'A02 华南大区', 'A03 华北大区'];
+  let prod = ['P1001 智能终端A1', 'P2001 数据模块B2', 'P3001 控制模组C3'];
+  let zone = ['Z01 沪苏国区', 'Z02 浙闽国区', 'Z03 粤泰国区', 'Z04 京津冀国区'];
+  let country = ['CN 中国', 'JP 日本', 'SG 新加坡', 'TH 泰国'];
+  let war = ['W01 华东作战区', 'W02 苏南作战区', 'W03 珠三角作战区', 'W04 华北作战区'];
+  let bu = ['BU01 电子事业部', 'BU02 通信事业部'];
+  let fields = [];
+
+  if (type === 'area') {
+    // 大区维度：计划年月 > 大区编码/名称 > 事业部编码/名称 > 机型 > 产品编码/名称
+    fields = [
+      qMonth('计划年月', { req: true }),
+      qSelect('大区编码/大区名称', area, { req: true, def: userInfo.areaCode }),
+      qSelect('事业部编码/事业部名称', bu),
+      qInput('机型'),
+      qSelect('产品编码/产品名称', prod)
+    ];
+  } else if (type === 'zone') {
+    // 国区维度：计划年月 > 国区编码/名称 > 事业部编码/名称 > 机型 > 产品编码/名称 > 大区编码/名称
+    fields = [
+      qMonth('计划年月', { req: true }),
+      qSelect('国区编码/国区名称', zone, { req: true, def: userInfo.zoneCode }),
+      qSelect('事业部编码/事业部名称', bu),
+      qInput('机型'),
+      qSelect('产品编码/产品名称', prod),
+      qSelect('大区编码/大区名称', area, { def: userInfo.areaCode })
+    ];
+  } else if (type === 'country') {
+    // 国家维度：计划年月 > 国家编码/名称 > 事业部 > 机型 > 产品 > 国区 > 大区 > 作战区域
+    fields = [
+      qMonth('计划年月', { req: true }),
+      qSelect('国家编码/国家名称', country, { req: true, def: userInfo.cCode }),
+      qSelect('事业部编码/事业部名称', bu),
+      qInput('机型'),
+      qSelect('产品编码/产品名称', prod),
+      qSelect('国区编码/国区名称', zone),
+      qSelect('大区编码/大区名称', area),
+      qSelect('作战区域编码/作战区域名称', war, { def: userInfo.warCode })
+    ];
+  } else if (type === 'detail') {
+    // 明细表：长表单
+    let r30 = recent30Days();
+    fields = [
+      qMonth('计划年月', { req: true }),
+      qInput('版本号', { placeholder: '支持模糊查询' }),
+      qInput('单据号', { placeholder: '支持模糊查询' }),
+      qSelect('作战区域编码/作战区域名称', war, { def: userInfo.warCode }),
+      '<div class="field"><label>数据来源</label><select id="srcFilter" multiple size="1" onchange="updateDemandTypeOptions()"><option value="">全部</option><option>例外需求</option><option>历史销售预测</option><option>确定性需求</option><option>先行指标预测</option></select><div class="hint">下拉多选，与需求类型联动</div></div>',
+      '<div class="field"><label>需求类型</label><select id="typeFilter" multiple size="1"><option value="">全部</option><option>风险备货</option><option>MTS备货</option><option>退市产品需求提报</option><option>新品上市需求提报</option><option>其他类型</option><option>历史销售预测</option><option>商机</option><option>线索</option><option>订单</option><option>合同</option><option>先行指标预测</option></select></div>',
+      qSelect('国家编码/国家名称', country, { def: userInfo.cCode }),
+      qSelect('国区编码/国区名称', zone, { def: userInfo.zoneCode }),
+      qSelect('大区编码/大区名称', area, { def: userInfo.areaCode }),
+      qSelect('事业部编码/事业部名称', bu),
+      qInput('审批单号', { placeholder: '请输入审批单号' }),
+      qDateRange('创建时间', { defStart: r30.start, defEnd: r30.end }),
+      qSelect('发运计收', ['是', '否']),
+      qSelect('订单型/储备型', ['订单型', '储备型']),
+      qInput('港口（起运港）', { placeholder: '请输入起运港' }),
+      qInput('港口（目的港）', { placeholder: '请输入目的港' }),
+      qSelect('运输方式', ['海运', '陆运', '空运']),
+      qSelect('贸易术语', ['CIF', 'FOB', 'EXW', '暂无'])
+    ];
+  }
+
+  return '<div class="card"><div style="display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px;align-items:end">' + fields.join('') + '<div class="field"><label>&nbsp;</label><button class="btn" onclick="summaryQuery(\'' + type + '\')">查询</button><button class="btn ghost" style="margin-left:8px" onclick="summaryReset(\'' + type + '\')">重置</button></div></div><div class="hint">下拉条件支持按编码/名称模糊查询和精准查询，支持单选/多选；查询时已填条件之间为 AND 关系。必填字段标 * 号。</div></div>';
+}
+
 function summaryQuery(type){alert('已按当前填写条件组合查询，已填条件之间为 AND 关系。')}
 function summaryReset(type){document.querySelectorAll('#sumBody select').forEach(s=>[...s.options].forEach(o=>o.selected=false));document.querySelectorAll('#sumBody input').forEach(i=>i.value='');alert('已清空查询条件，并自动重新查询全量数据，分页重置为第1页。')}
 function updateDemandTypeOptions(){let map={'例外需求':['风险备货','MTS备货','退市产品需求提交','新品上市需求提交','其他类型'],'历史销售预测':['历史销售预测'],'确定性需求':['商机','线索','订单','合同'],'先行指标预测':['先行指标预测']};let src=[...document.getElementById('srcFilter').selectedOptions].map(o=>o.value);let list=src.length?[...new Set(src.flatMap(s=>map[s]||[]))]:Object.values(map).flat();document.getElementById('typeFilter').innerHTML=list.map(x=>`<option>${x}</option>`).join('')}
