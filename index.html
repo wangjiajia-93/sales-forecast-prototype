@@ -45,77 +45,148 @@ function currentMonth() { let d = new Date(); return d.getFullYear() + '-' + Str
 function recent30Days() { let end = new Date(); let start = new Date(); start.setDate(start.getDate() - 29); let fmt = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); return { start: fmt(start), end: fmt(end) }; }
 
 // 通用下拉选（支持单选/多选、模糊/精准查询）
+// 通用下拉选（支持远程搜索模式）
 function qSelect(label, opts, opts2) {
   let multi = opts2 && opts2.multi !== false;
   let req = opts2 && opts2.req;
   let def = opts2 && opts2.def;
   let ph = opts2 && opts2.placeholder;
+  let remote = opts2 && opts2.remote; // 远程搜索模式（含"全部"选项的字段）
+
+  if (remote) {
+    // 远程搜索模式：初始化仅显示"全部"，需输入搜索词才展示结果
+    let id = 'rsel_' + Math.random().toString(36).substr(2, 9);
+    return '<div class="field"><label' + (req ? ' class="req"' : '') + '>' + label + '</label>' +
+      '<div style="position:relative">' +
+      '<input type="text" id="' + id + '" placeholder="输入关键词搜索" ' +
+      (def ? 'value="' + def + '" ' : '') +
+      'style="width:100%" ' +
+      'onclick="showRemoteDropdown(this)" ' +
+      'oninput="filterRemoteOptions(this,\'' + id + '\')">' +
+      '<div id="' + id + '_dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:100;max-height:220px;overflow-y:auto;border:1px solid #d9d9d9;border-radius:4px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15)">' +
+      '<div class="remote-opt" style="padding:6px 12px;cursor:pointer;background:#f5f5f5" onclick="selectRemoteOption(this,\'' + id + '\')">全部</div>' +
+      '</div>' +
+      '</div>' +
+      '<div class="hint">支持模糊搜索，不加载全量数据</div>' +
+      '</div>';
+  }
+
+  // 普通模式：加载所有选项
   return '<div class="field"><label' + (req ? ' class="req"' : '') + '>' + label + '</label><select' + (multi ? ' multiple size="1"' : '') + ' title="支持按编码/名称模糊查询和精准查询">' +
     (multi ? '<option value="">全部</option>' : '<option value="">请选择</option>') +
     opts.map(function(o) { return '<option' + (def && o.indexOf(def) === 0 ? ' selected' : '') + '>' + o + '</option>'; }).join('') +
     '</select>' + (ph ? '<div class="hint">' + ph + '</div>' : '') + '</div>';
 }
-// 文本输入框
-function qInput(label, opts2) {
-  let req = opts2 && opts2.req;
-  let ph = (opts2 && opts2.placeholder) || '请输入';
-  return '<div class="field"><label' + (req ? ' class="req"' : '') + '>' + label + '</label><input placeholder="' + ph + '"></div>';
+
+// 显示远程下拉框
+function showRemoteDropdown(input) {
+  let id = input.id;
+  let dropdown = document.getElementById(id + '_dropdown');
+  if (dropdown) {
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+  }
 }
-// 月份选择器
+
+// 远程搜索过滤
+function filterRemoteOptions(input, id) {
+  let dropdown = document.getElementById(id + '_dropdown');
+  if (!dropdown) return;
+  
+  let keyword = input.value.trim().toLowerCase();
+  let label = input.closest('.field').querySelector('label').textContent;
+  let allOpts = getRemoteData(label);
+  
+  // 清空现有选项（保留"全部"）
+  let firstOpt = dropdown.querySelector('.remote-opt');
+  dropdown.innerHTML = '';
+  
+  // 添加"全部"选项
+  let allDiv = document.createElement('div');
+  allDiv.className = 'remote-opt';
+  allDiv.style.cssText = 'padding:6px 12px;cursor:pointer;background:#f5f5f5';
+  allDiv.textContent = '全部';
+  allDiv.onclick = function() { selectRemoteOption(this, id); };
+  dropdown.appendChild(allDiv);
+  
+  // 如果有搜索词，添加匹配项
+  if (keyword) {
+    let matched = allOpts.filter(function(o) {
+      return o.toLowerCase().indexOf(keyword) !== -1;
+    });
+    matched.forEach(function(o) {
+      let div = document.createElement('div');
+      div.className = 'remote-opt';
+      div.style.cssText = 'padding:6px 12px;cursor:pointer';
+      div.textContent = o;
+      div.onclick = function() { selectRemoteOption(this, id); };
+      dropdown.appendChild(div);
+    });
+  }
+  
+  dropdown.style.display = 'block';
+}
+
+// 选择远程选项
+function selectRemoteOption(optDiv, inputId) {
+  let input = document.getElementById(inputId);
+  if (input) {
+    input.value = optDiv.textContent;
+  }
+  let dropdown = document.getElementById(inputId + '_dropdown');
+  if (dropdown) {
+    dropdown.style.display = 'none';
+  }
+}
+
+// 获取远程数据（模拟API）
+function getRemoteData(label) {
+  let dataMap = {
+    '大区编码/大区名称': ['A01 华东大区', 'A02 华南大区', 'A03 华北大区', 'A04 西南大区', 'A05 东北大区'],
+    '国区编码/国区名称': ['Z01 沪苏国区', 'Z02 浙闽国区', 'Z03 粤泰国区', 'Z04 京津冀国区', 'Z05 川渝国区'],
+    '国家编码/国家名称': ['CN 中国', 'JP 日本', 'SG 新加坡', 'TH 泰国', 'VN 越南', 'MY 马来西亚'],
+    '国家名称/国家编码': ['CN 中国', 'JP 日本', 'SG 新加坡', 'TH 泰国', 'VN 越南', 'MY 马来西亚'],
+    '作战区域编码/作战区域名称': ['W01 华东作战区', 'W02 苏南作战区', 'W03 珠三角作战区', 'W04 华北作战区'],
+    '作战区域名称/编码': ['W01 华东作战区', 'W02 苏南作战区', 'W03 珠三角作战区', 'W04 华北作战区'],
+    '事业部编码/事业部名称': ['BU01 电子事业部', 'BU02 通信事业部', 'BU03 智能事业部']
+  };
+  return dataMap[label] || [];
+}
+
+// 月份选择器（无禁用限制，默认当前月，可选任意月份）
 function qMonth(label, opts2) {
   let req = opts2 && opts2.req;
   let def = (opts2 && opts2.def) || currentMonth();
   // 使用 type="month" 确保是月份选择器，格式为 YYYY-MM
-  return '<div class="field"><label' + (req ? ' class="req"' : '') + '>' + label + '</label><input type="month" value="' + def + '" pattern="[0-9]{4}-[0-9]{2}" title="请选择年月（格式：YYYY-MM）" style="width:100%"></div>';
-}
-// 日期范围选择器
-// 明细表查询条件（6列栅格布局，20个字段）
-function summaryDetailFilters() {
-  let area = ['A01 华东大区', 'A02 华南大区', 'A03 华北大区'];
-  let prod = ['P1001 智能终端A1', 'P2001 数据模块B2', 'P3001 控制模组C3'];
-  let zone = ['Z01 沪苏国区', 'Z02 浙闽国区', 'Z03 粤泰国区', 'Z04 京津冀国区'];
-  let country = ['CN 中国', 'JP 日本', 'SG 新加坡', 'TH 泰国'];
-  let war = ['W01 华东作战区', 'W02 苏南作战区', 'W03 珠三角作战区', 'W04 华北作战区'];
-  let bu = ['BU01 电子事业部', 'BU02 通信事业部'];
-  let r30 = recent30Days();
-
-  let fields = [
-    qMonth('计划年月', { req: true }),
-    qInput('版本号', { placeholder: '支持模糊查询' }),
-    qInput('单据号', { placeholder: '支持模糊查询' }),
-    qSelect('作战区域编码/作战区域名称', war, { def: userInfo.warCode }),
-    '<div class="field"><label>数据来源</label><select id="srcFilter" multiple size="1" onchange="updateDemandTypeOptions()"><option value="">全部</option><option>例外需求</option><option>历史销售预测</option><option>确定性需求</option><option>先行指标预测</option></select></div>',
-    '<div class="field"><label>需求类型</label><select id="typeFilter" multiple size="1"><option value="">全部</option><option>风险备货</option><option>MTS备货</option><option>退市产品需求提报</option><option>新品上市需求提报</option><option>其他类型</option><option>历史销售预测</option><option>商机</option><option>线索</option><option>订单</option><option>合同</option><option>先行指标预测</option></select></div>',
-    qSelect('产品编码/产品名称', prod),
-    qSelect('国家编码/国家名称', country, { def: userInfo.cCode }),
-    qSelect('国区编码/国区名称', zone, { def: userInfo.zoneCode }),
-    qSelect('大区编码/大区名称', area, { def: userInfo.areaCode }),
-    qSelect('事业部编码/事业部名称', bu),
-    qInput('机型'),
-    qInput('审批单号', { placeholder: '请输入审批单号' }),
-    qDateRange('创建时间', { defStart: r30.start, defEnd: r30.end, merged: true }),
-    qSelect('发运计收', ['是', '否']),
-    qSelect('订单型/储备型', ['订单型', '储备型']),
-    qInput('港口（起运港）', { placeholder: '请输入起运港' }),
-    qInput('港口（目的港）', { placeholder: '请输入目的港' }),
-    qSelect('运输方式', ['海运', '陆运', '空运']),
-    qSelect('贸易术语', ['CIF', 'FOB', 'EXW', '暂无'])
-  ];
-
-  return '<div class="card"><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-items:end">' + fields.join('') + '<div class="field"><label>&nbsp;</label><button class="btn" onclick="summaryQuery(\'detail\')">查询</button><button class="btn ghost" style="margin-left:8px" onclick="summaryReset(\'detail\')">重置</button></div></div><div class="hint">下拉条件支持按编码/名称模糊查询和精准查询，支持单选/多选；查询时已填条件之间为 AND 关系。必填字段标 * 号。</div></div>';
+  // 注意：不添加任何 min/max/disabled 属性，允许自由选择过去或未来的任意月份
+  return '<div class="field"><label' + (req ? ' class="req"' : '') + '>' + label + '</label><input type="month" value="' + def + '" title="请选择年月（格式：YYYY-MM），可自由选择任意月份" style="width:100%"></div>';
 }
 
-// 更新后的 qDateRange 函数（支持合并显示模式）
+// 日期范围选择器（默认单框显示）
 function qDateRange(label, opts2) {
   let r = recent30Days();
-  let defStart = (opts2 && opts2.defStart) || r.start;
-  let defEnd = (opts2 && opts2.defEnd) || r.end;
-  let merged = opts2 && opts2.merged;
+  let defStart = (opts2 && opts2.defStart) || '';
+  let defEnd = (opts2 && opts2.defEnd) || '';
+  let merged = opts2 && opts2.merged !== false; // 默认合并显示
+
   if (merged) {
-    return '<div class="field"><label>' + label + '</label><input type="text" readonly value="' + defStart.replace(/-/g, '/') + ' ~ ' + defEnd.replace(/-/g, '/') + '" style="cursor:pointer" title="点击选择日期范围"></div>';
+    // 合并显示模式：单个输入框显示范围，格式 YYYY/MM/DD ~ YYYY/MM/DD
+    let displayValue = defStart && defEnd ? defStart.replace(/-/g, '/') + ' ~ ' + defEnd.replace(/-/g, '/') : '';
+    return '<div class="field"><label>' + label + '</label><input type="text" readonly value="' + displayValue + '" style="cursor:pointer" title="点击选择日期范围" onclick="openDateRangePicker(this)"></div>';
   }
+  // 非合并模式（保留兼容）
   return '<div class="field"><label>' + label + '</label><div style="display:flex;gap:6px;align-items:center"><input type="date" value="' + defStart + '"><span>~</span><input type="date" value="' + defEnd + '"></div></div>';
 }
+
+// 打开日期范围选择器
+function openDateRangePicker(input) {
+  let current = input.value;
+  let defaultVal = recent30Days().start.replace(/-/g, '/') + ' ~ ' + recent30Days().end.replace(/-/g, '/');
+  let newValue = prompt('请输入日期范围（格式：YYYY/MM/DD ~ YYYY/MM/DD）：', current || defaultVal);
+  if (newValue !== null && newValue.trim()) {
+    input.value = newValue.trim();
+  }
+}
+
 
 // 更新后的 summaryFilters 函数（detail 分支调用 summaryDetailFilters）
 function summaryFilters(type) {
@@ -142,7 +213,7 @@ function summaryFilters(type) {
       qSelect('事业部编码/事业部名称', bu),
       qInput('机型'),
       qSelect('产品编码/产品名称', prod),
-      qSelect('大区编码/大区名称', area, { def: userInfo.areaCode })
+      qSelect('大区编码/大区名称', area, { def: userInfo.areaCode, remote: true })
     ];
   } else if (type === 'country') {
     fields = [
@@ -153,7 +224,7 @@ function summaryFilters(type) {
       qSelect('产品编码/产品名称', prod),
       qSelect('国区编码/国区名称', zone),
       qSelect('大区编码/大区名称', area),
-      qSelect('作战区域编码/作战区域名称', war, { def: userInfo.warCode })
+      qSelect('作战区域编码/作战区域名称', war, { def: userInfo.warCode, remote: true })
     ];
   } else if (type === 'detail') {
     return summaryDetailFilters();
@@ -219,8 +290,8 @@ function exceptionSummaryFilters() {
     qInput('机型'),
     qInput('产品编码/产品名称', { placeholder: '支持模糊查询' }),
     qSelect('大区编码/大区名称', area, { def: userInfo.areaCode }),
-    qSelect('国区编码/国区名称', zone, { def: userInfo.zoneCode }),
-    qSelect('国家编码/国家名称', country, { def: userInfo.cCode })
+    qSelect('国区编码/国区名称', zone, { def: userInfo.zoneCode, remote: true }),
+    qSelect('国家编码/国家名称', country, { def: userInfo.cCode, remote: true })
   ];
   return '<div class="card"><div style="display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px;align-items:end">' + fields.join('') + '<div class="field"><label>&nbsp;</label><button class="btn" onclick="summaryQuery(\'exSum\')">查询</button><button class="btn ghost" style="margin-left:8px" onclick="summaryReset(\'exSum\')">重置</button></div></div><div class="hint">下拉条件支持编码+名称模糊搜索；计划年月必填，默认当前月份；大区/国区/国家默认取当前用户所属。多条件之间为 AND 关系。</div></div>';
 }
@@ -246,10 +317,10 @@ function exceptionFilters() {
     qInput('审批单号', { placeholder: '支持模糊查询' }),
     qSelect('作战区域编码/作战区域名称', war, { multi: false }),
     qSelect('需求类型', dt, { multi: false }),
-    qDateRange('预计入库日期'),
+    qDateRange('预计入库日期', { merged: true }),
     // 第2行：产品编码/名称、国家、国区、大区、事业部、机型
     qInput('产品编码/产品名称', { placeholder: '支持模糊查询' }),
-    qSelect('国家名称/国家编码', country, { def: userInfo.cCode }),
+    qSelect('国家名称/国家编码', country, { def: userInfo.cCode, remote: true }),
     qSelect('国区编码/国区名称', zone, { def: userInfo.zoneCode }),
     qSelect('大区编码/大区名称', area, { def: userInfo.areaCode }),
     qSelect('事业部编码/事业部名称', bu),
