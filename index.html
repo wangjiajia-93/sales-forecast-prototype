@@ -65,7 +65,8 @@ function qInput(label, opts2) {
 function qMonth(label, opts2) {
   let req = opts2 && opts2.req;
   let def = (opts2 && opts2.def) || currentMonth();
-  return '<div class="field"><label' + (req ? ' class="req"' : '') + '>' + label + '</label><input type="month" value="' + def + '"></div>';
+  // 使用 type="month" 确保是月份选择器，格式为 YYYY-MM
+  return '<div class="field"><label' + (req ? ' class="req"' : '') + '>' + label + '</label><input type="month" value="' + def + '" pattern="[0-9]{4}-[0-9]{2}" title="请选择年月（格式：YYYY-MM）" style="width:100%"></div>';
 }
 // 日期范围选择器
 // 明细表查询条件（6列栅格布局，20个字段）
