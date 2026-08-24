@@ -512,38 +512,38 @@ var crDetailMock={
 };
 var crApprovalMock={
 'CR-2026-001':{timeline:[
-{node:'提交申请',user:'李四',uid:'A10023',action:'提交',status:'已通过',opinion:'提交需求变更申请，客户要求提前30天交货',time:'2026-08-15 10:30:25'},
-{node:'一级审批',user:'张经理',uid:'A10008',action:'同意',status:'已通过',opinion:'同意，已确认市场计划提前，工厂产能可协调',time:'2026-08-15 14:20:18'},
-{node:'二级审批',user:'王总',uid:'A10002',action:'同意',status:'已通过',opinion:'批准，请协调工厂排期，注意控制成本',time:'2026-08-16 09:10:42'},
-{node:'关务审核',user:'赵六',uid:'A10035',action:'同意',status:'已通过',opinion:'关务审核通过，无合规风险',time:'2026-08-16 16:00:08'}
+{node:'起草人节点',title:'李四提交',uid:'A10023',action:'提交',flowType:'串行',status:'已通过',opinion:'提交需求变更申请，客户要求提前30天交货',time:'2026-08-15 10:30:25'},
+{node:'一级审批人',title:'张经理审批',uid:'A10008',action:'同意',flowType:'会签',status:'已通过',opinion:'同意，已确认市场计划提前，工厂产能可协调',time:'2026-08-15 14:20:18'},
+{node:'二级审批人',title:'王总审批',uid:'A10002',action:'同意',flowType:'串行',status:'已通过',opinion:'批准，请协调工厂排期，注意控制成本',time:'2026-08-16 09:10:42'},
+{node:'关务审核人',title:'赵六审核',uid:'A10035',action:'同意',flowType:'串行',status:'已通过',opinion:'关务审核通过，无合规风险',time:'2026-08-16 16:00:08'}
 ],comments:[
 {user:'张经理',uid:'A10008',time:'2026-08-15 14:22:30',content:'已与工厂确认产能，可以提前安排'},
 {user:'王总',uid:'A10002',time:'2026-08-16 09:15:10',content:'注意控制额外成本，如有超支及时汇报'},
 {user:'李四',uid:'A10023',time:'2026-08-16 16:30:00',content:'收到，已通知工厂调整排产计划'}
 ]},
 'CR-2026-002':{timeline:[
-{node:'提交申请',user:'张三',uid:'A10015',action:'提交',status:'已通过',opinion:'市场需求增加，申请追加数量100台',time:'2026-08-16 14:20:10'},
-{node:'一级审批',user:'李经理',uid:'A10009',action:'同意',status:'已通过',opinion:'同意追加，已确认供应商产能可满足',time:'2026-08-17 10:00:35'},
-{node:'二级审批',user:'李总',uid:'A10003',action:'同意',status:'已通过',opinion:'批准执行',time:'2026-08-17 15:30:22'}
+{node:'起草人节点',title:'张三提交',uid:'A10015',action:'提交',flowType:'串行',status:'已通过',opinion:'市场需求增加，申请追加数量100台',time:'2026-08-16 14:20:10'},
+{node:'部门经理审批',title:'李经理审批',uid:'A10009',action:'同意',flowType:'串行',status:'已通过',opinion:'同意追加，已确认供应商产能可满足',time:'2026-08-17 10:00:35'},
+{node:'总监审批',title:'李总审批',uid:'A10003',action:'同意',flowType:'串行',status:'已通过',opinion:'批准执行',time:'2026-08-17 15:30:22'}
 ],comments:[
 {user:'李经理',uid:'A10009',time:'2026-08-17 10:05:18',content:'供应商确认可以追加100台，交期不变'}
 ]},
 'CR-2026-003':{timeline:[
-{node:'提交申请',user:'李四',uid:'A10023',action:'提交',status:'已通过',opinion:'客户取消合作，申请取消需求',time:'2026-08-17 09:00:15'},
-{node:'一级审批',user:'张经理',uid:'A10008',action:'同意',status:'已通过',opinion:'确认客户已取消，同意关闭该需求',time:'2026-08-17 11:30:40'},
-{node:'二级审批',user:'王总',uid:'A10002',action:'审批中',status:'待办',opinion:'',time:''}
+{node:'起草人节点',title:'李四提交',uid:'A10023',action:'提交',flowType:'串行',status:'已通过',opinion:'客户取消合作，申请取消需求',time:'2026-08-17 09:00:15'},
+{node:'部门经理审批',title:'张经理审批',uid:'A10008',action:'同意',flowType:'串行',status:'已通过',opinion:'确认客户已取消，同意关闭该需求',time:'2026-08-17 11:30:40'},
+{node:'总监审批',title:'王总审批',uid:'A10002',action:'审批中',flowType:'串行',status:'待办',opinion:'',time:''}
 ],comments:[]},
 'CR-2026-005':{timeline:[
-{node:'提交申请',user:'赵六',uid:'A10035',action:'提交',status:'已通过',opinion:'紧急新增备货需求，市场突发订单',time:'2026-08-19 08:45:30'},
-{node:'一级审批',user:'钱经理',uid:'A10012',action:'同意',status:'已通过',opinion:'情况紧急，建议快速审批通道',time:'2026-08-19 09:30:15'},
-{node:'二级审批',user:'王总',uid:'A10002',action:'驳回',status:'已驳回',opinion:'当前库存充足，无需追加备货，请重新评估市场情况',time:'2026-08-19 14:00:50'}
+{node:'起草人节点',title:'赵六提交',uid:'A10035',action:'提交',flowType:'串行',status:'已通过',opinion:'紧急新增备货需求，市场突发订单',time:'2026-08-19 08:45:30'},
+{node:'部门经理审批',title:'钱经理审批',uid:'A10012',action:'同意',flowType:'会签',status:'已通过',opinion:'情况紧急，建议快速审批通道',time:'2026-08-19 09:30:15'},
+{node:'总监审批',title:'王总审批',uid:'A10002',action:'驳回',flowType:'串行',status:'已驳回',opinion:'当前库存充足，无需追加备货，请重新评估市场情况',time:'2026-08-19 14:00:50'}
 ],comments:[
 {user:'王总',uid:'A10002',time:'2026-08-19 14:02:30',content:'请先核实当前库存数据，再决定是否追加'}
 ]},
 'CR-2026-006':{timeline:[
-{node:'提交申请',user:'王五',uid:'A10018',action:'提交',status:'已通过',opinion:'市场调研调整，减少备货量50台',time:'2026-08-20 15:00:20'},
-{node:'一级审批',user:'李经理',uid:'A10009',action:'同意',status:'已通过',opinion:'同意调整，已与客户确认需求变化',time:'2026-08-21 09:00:45'},
-{node:'二级审批',user:'李总',uid:'A10003',action:'同意',status:'已通过',opinion:'批准',time:'2026-08-21 14:30:10'}
+{node:'起草人节点',title:'王五提交',uid:'A10018',action:'提交',flowType:'串行',status:'已通过',opinion:'市场调研调整，减少备货量50台',time:'2026-08-20 15:00:20'},
+{node:'部门经理审批',title:'李经理审批',uid:'A10009',action:'同意',flowType:'串行',status:'已通过',opinion:'同意调整，已与客户确认需求变化',time:'2026-08-21 09:00:45'},
+{node:'总监审批',title:'李总审批',uid:'A10003',action:'同意',flowType:'串行',status:'已通过',opinion:'批准',time:'2026-08-21 14:30:10'}
 ],comments:[]}
 };
 function openCrApproval(crNo){
@@ -623,46 +623,62 @@ flowHtml+='<div style="display:flex;flex-direction:column;align-items:center;min
 if(idx<mock.timeline.length-1){flowHtml+='<div style="display:flex;align-items:center;padding:0 2px"><div style="width:30px;height:2px;background:#d0d5dd"></div><div style="width:0;height:0;border-left:6px solid #d0d5dd;border-top:4px solid transparent;border-bottom:4px solid transparent"></div></div>'}
 });
 flowHtml+='</div></div>';
-// Right sidebar - Timeline
-var sideTlHtml='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:10px"><b style="color:#173763;font-size:13px">审批记录</b></div><div style="flex:1;overflow-y:auto;padding-right:4px">';
+// Right sidebar - Tab header
+var sideTabHtml='<div style="display:flex;align-items:center;border-bottom:1px solid #e8edf5;padding:0 14px">'
++'<div class="stab on" data-stab="tl" style="padding:10px 14px;font-size:13px;cursor:pointer;color:#173763;font-weight:700;border-bottom:2px solid #2f6edb;margin-bottom:-1px">审批记录</div>'
++'<div class="stab" data-stab="cm" style="padding:10px 14px;font-size:13px;cursor:pointer;color:#667085;margin-left:4px">评论</div>'
++'<div style="margin-left:auto"><span style="font-size:18px;color:#2f6edb;cursor:pointer" title="消息通知">&#128172;</span></div></div>';
+// Right sidebar - Timeline (Tab1)
+var sideTlHtml='<div style="flex:1;overflow-y:auto;padding:12px 14px">';
 mock.timeline.forEach(function(n,idx){
-var dc=dotColor[n.status]||'#98a2b3';
 var isLast=idx===mock.timeline.length-1;
+var isPassed=n.status==='已通过';
 var isPending=n.status==='待办';
-var initial=n.user.charAt(0);
-var avatarBg={'李':'#e8f1ff','张':'#e8f8ef','王':'#fff4e5','赵':'#ffecec','钱':'#f3e8ff'}[initial]||'#eef0f4';
-var avatarColor={'李':'#1d5fd1','张':'#138a4a','王':'#b86b00','赵':'#c42626','钱':'#7c3aed'}[initial]||'#667085';
+var isRejected=n.status==='已驳回';
+var userName=n.title?n.title.split(/\u5ba1\u6279|\u63d0\u4ea4|\u5ba1\u6838/)[0]:n.node;
+var statusColor=isPassed?'#138a4a':isPending?'#1d5fd1':isRejected?'#c42626':'#667085';
+var statusText=isPassed?'已通过':isPending?'待办':isRejected?'已驳回':'未知';
+var statusBg=isPassed?'#e8f8ef':isPending?'#e8f1ff':isRejected?'#ffecec':'#f2f4f7';
+// Icon
 var iconHtml='';
-if(isPending){iconHtml='<div style="width:28px;height:28px;border-radius:50%;border:2px solid #1d5fd1;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:10px;height:10px;border-radius:50%;background:#1d5fd1;animation:pulse 1.5s infinite"></div></div>'}
-else if(n.status==='已驳回'){iconHtml='<div style="width:28px;height:28px;border-radius:50%;background:#ffecec;color:#c42626;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">&#10007;</div>'}
-else{iconHtml='<div style="width:28px;height:28px;border-radius:50%;background:'+avatarBg+';color:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">'+initial+'</div>'}
-var lineStyle=isLast?'':(isPending?'width:2px;flex:1;background:repeating-linear-gradient(to bottom,#d0d5dd 0,#d0d5dd 4px,transparent 4px,transparent 8px)':'width:2px;flex:1;background:#e8edf5');
-sideTlHtml+='<div style="display:flex;gap:10px;position:relative;padding-bottom:'+(isLast?'0':'16')+'px">'
-+'<div style="display:flex;flex-direction:column;align-items:center;min-width:28px">'
+if(isPassed){iconHtml='<div style="width:24px;height:24px;border-radius:50%;background:#138a4a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0">&#10003;</div>'}
+else if(isPending){iconHtml='<div style="width:24px;height:24px;border-radius:50%;background:#e8f1ff;color:#1d5fd1;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;animation:pulse 1.5s infinite">&#9201;</div>'}
+else if(isRejected){iconHtml='<div style="width:24px;height:24px;border-radius:50%;background:#ffecec;color:#c42626;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#10007;</div>'}
+else{iconHtml='<div style="width:24px;height:24px;border-radius:50%;background:#f2f4f7;color:#98a2b3;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">&#9679;</div>'}
+// Line
+var lineColor=isPassed?'#138a4a':'#d0d5dd';
+var lineStyle=isLast?'':(isPassed?'width:2px;flex:1;background:'+lineColor:'width:2px;flex:1;background:repeating-linear-gradient(to bottom,#d0d5dd 0,#d0d5dd 4px,transparent 4px,transparent 8px)');
+// Card
+sideTlHtml+='<div style="display:flex;gap:10px;position:relative;padding-bottom:'+(isLast?'0':'12')+'px">'
++'<div style="display:flex;flex-direction:column;align-items:center;min-width:24px">'
 +iconHtml
 +(isLast?'':'<div style="'+lineStyle+';margin-top:4px"></div>')
 +'</div>'
-+'<div style="flex:1;padding-top:2px">'
-+'<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap"><span style="font-weight:700;color:#2b2f36;font-size:13px">'+n.node+'</span><span class="tag" style="background:'+(dc==='#138a4a'?'#e8f8ef':dc==='#1d5fd1'?'#e8f1ff':dc==='#c42626'?'#ffecec':'#eef0f4')+';color:'+dc+'">'+n.status+'</span>'
-+(n.action?'<span style="font-size:11px;color:#667085;background:#f2f4f7;padding:1px 6px;border-radius:3px">'+n.action+'</span>':'')
++'<div style="flex:1;min-width:0">'
++'<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">'
++'<span style="font-weight:700;color:#2b2f36;font-size:13px">'+n.node+'</span>'
++(n.flowType?'<span style="font-size:10px;color:#667085;background:#f2f4f7;padding:1px 6px;border-radius:8px">'+n.flowType+'</span>':'')
 +'</div>'
-+'<div style="color:#667085;font-size:12px">'+n.user+(n.uid?' ('+n.uid+')':'')+(n.time?' · '+n.time:'')+'</div>'
-+(n.opinion?'<div style="color:#2b2f36;font-size:12px;margin-top:4px;background:#f8fafc;padding:6px 8px;border-radius:4px;border-left:2px solid '+dc+';word-break:break-all">'+n.opinion+'</div>':'')
-+'</div></div>'});
++'<div style="background:#f8fafc;border-radius:6px;padding:8px 10px;font-size:12px">'
++'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">'
++'<span style="color:#475467">&#128100; '+userName+' ('+n.uid+')</span>'
++'<span style="color:'+statusColor+';font-weight:600;background:'+statusBg+';padding:1px 6px;border-radius:4px;font-size:11px">'+statusText+'</span></div>'
++'<div style="color:#667085;margin-bottom:4px;word-break:break-all">'+(n.opinion||'/')+'</div>'
++'<div style="text-align:right;color:#98a2b3;font-size:11px">'+(n.time?n.time+' UTC+08:00':'/')+'</div>'
++'</div></div></div>'});
 sideTlHtml+='</div>';
-// Right sidebar - Comments
-var sideCmHtml='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:8px"><b style="color:#173763;font-size:13px">评论 / 沟通记录</b></div>';
-sideCmHtml+='<div id="crCommentList" style="flex:1;overflow-y:auto;margin-bottom:8px;padding-right:4px">';
+// Right sidebar - Comments (Tab2)
+var sideCmHtml='<div style="flex:1;overflow-y:auto;padding:12px 14px;display:none" id="crSideCm">';
 if(mock.comments.length){mock.comments.forEach(function(c){
 var initial=c.user.charAt(0);
 var avatarBg={'李':'#e8f1ff','张':'#e8f8ef','王':'#fff4e5','赵':'#ffecec','钱':'#f3e8ff'}[initial]||'#eef0f4';
 var avatarColor={'李':'#1d5fd1','张':'#138a4a','王':'#b86b00','赵':'#c42626','钱':'#7c3aed'}[initial]||'#667085';
-sideCmHtml+='<div style="display:flex;gap:8px;margin-bottom:10px">'
-+'<div style="width:26px;height:26px;border-radius:50%;background:'+avatarBg+';color:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">'+initial+'</div>'
-+'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="font-weight:600;color:#2b2f36;font-size:12px">'+c.user+(c.uid?' ('+c.uid+')':'')+'</span><span style="color:#98a2b3;font-size:10px">'+c.time+'</span></div>'
-+'<div style="color:#2b2f36;font-size:12px;background:#f8fafc;padding:6px 8px;border-radius:6px;word-break:break-all">'+c.content+'</div></div></div>'})}else{sideCmHtml+='<div style="color:#98a2b3;font-size:12px;padding:8px 0">暂无评论</div>'}
+sideCmHtml+='<div style="display:flex;gap:8px;margin-bottom:12px">'
++'<div style="width:28px;height:28px;border-radius:50%;background:'+avatarBg+';color:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">'+initial+'</div>'
++'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="font-weight:600;color:#2b2f36;font-size:12px">'+c.user+'</span><span style="color:#98a2b3;font-size:10px">'+c.time+'</span></div>'
++'<div style="color:#2b2f36;font-size:12px;background:#f8fafc;padding:8px 10px;border-radius:6px;word-break:break-all">'+c.content+'</div></div></div>'})}else{sideCmHtml+='<div style="color:#98a2b3;font-size:12px;padding:20px 0;text-align:center">暂无评论</div>'}
 sideCmHtml+='</div>';
-sideCmHtml+='<div style="border-top:1px solid #e8edf5;padding-top:8px"><textarea id="crCommentInput" placeholder="输入评论内容..." rows="2" style="width:100%;border:1px solid #d0d5dd;border-radius:4px;padding:6px 8px;font-size:12px;resize:vertical;margin-bottom:6px"></textarea><button class="btn" style="width:100%;height:28px;font-size:12px" onclick="crSubmitComment(\''+crNo+'\')">发送</button></div>';
+sideCmHtml+='<div style="border-top:1px solid #e8edf5;padding:10px 14px;display:none" id="crSideCmInput"><textarea id="crCommentInput" placeholder="输入评论内容..." rows="2" style="width:100%;border:1px solid #d0d5dd;border-radius:4px;padding:6px 8px;font-size:12px;resize:vertical;margin-bottom:6px"></textarea><div style="text-align:right"><button class="btn" style="height:28px;font-size:12px;padding:0 16px" onclick="crSubmitComment(\''+crNo+'\')">发送</button></div></div>';
 // Render with two-column layout
 app.innerHTML='<div class="crumb">销售预测 / <b>需求变更记录</b> / 审批详情</div>'
 +'<div style="display:flex;gap:14px;align-items:flex-start">'
@@ -675,18 +691,28 @@ app.innerHTML='<div class="crumb">销售预测 / <b>需求变更记录</b> / 审
 +'<div id="crTabFlow" style="display:none">'+tlHtml+'</div>'
 +'<div id="crTabDiagram" style="display:none">'+flowHtml+'</div>'
 +'</div>'
-+'<div style="width:320px;flex-shrink:0;position:sticky;top:20px">'
-+'<div class="card" style="display:flex;flex-direction:column;max-height:calc(100vh - 100px)">'
-+'<div style="flex:3;min-height:0;display:flex;flex-direction:column;margin-bottom:10px">'+sideTlHtml+'</div>'
-+'<div style="flex:2;min-height:0;display:flex;flex-direction:column;border-top:1px solid #e8edf5;padding-top:10px">'+sideCmHtml+'</div>'
++'<div style="width:340px;flex-shrink:0;position:sticky;top:20px;border-left:1px solid #e8edf5;background:#fff">'
++'<div class="card" style="display:flex;flex-direction:column;max-height:calc(100vh - 100px);padding:0;margin:0;border-radius:0;box-shadow:none">'
++sideTabHtml
++'<div id="crSideTl" style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">'+sideTlHtml+'</div>'
++sideCmHtml
 +'</div></div></div>';
+// Main tabs
 document.querySelectorAll('[data-mtab]').forEach(function(t){t.onclick=function(){
 document.querySelectorAll('[data-mtab]').forEach(function(x){x.classList.remove('on')});
 t.classList.add('on');
 var v=t.dataset.mtab;
 document.getElementById('crTabContent').style.display=v==='content'?'':'none';
 document.getElementById('crTabFlow').style.display=v==='flow'?'':'none';
-document.getElementById('crTabDiagram').style.display=v==='diagram'?'':'none'}})}
+document.getElementById('crTabDiagram').style.display=v==='diagram'?'':'none'}});
+// Sidebar tabs
+document.querySelectorAll('[data-stab]').forEach(function(t){t.onclick=function(){
+document.querySelectorAll('[data-stab]').forEach(function(x){x.classList.remove('on');x.style.color='#667085';x.style.fontWeight='normal';x.style.borderBottom='none'});
+t.classList.add('on');t.style.color='#173763';t.style.fontWeight='700';t.style.borderBottom='2px solid #2f6edb';
+var v=t.dataset.stab;
+document.getElementById('crSideTl').style.display=v==='tl'?'':'none';
+document.getElementById('crSideCm').style.display=v==='cm'?'flex':'none';
+document.getElementById('crSideCmInput').style.display=v==='cm'?'':'none'}})}
 function crSubmitComment(crNo){
 var input=document.getElementById('crCommentInput');
 var text=input.value.trim();
@@ -695,15 +721,15 @@ var now=new Date();var ts=now.getFullYear()+'-'+String(now.getMonth()+1).padStar
 var newComment={user:'当前用户',uid:'U00001',time:ts,content:text};
 if(crApprovalMock[crNo]){crApprovalMock[crNo].comments.push(newComment)}else{crApprovalMock[crNo]={timeline:[],comments:[newComment]}}
 input.value='';
-var listEl=document.getElementById('crCommentList');
+var listEl=document.getElementById('crSideCm');
 var initial=newComment.user.charAt(0);
 var avatarBg='#e8f1ff';var avatarColor='#1d5fd1';
-var html='<div style="display:flex;gap:8px;margin-bottom:10px">'
-+'<div style="width:26px;height:26px;border-radius:50%;background:'+avatarBg+';color:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">'+initial+'</div>'
-+'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="font-weight:600;color:#2b2f36;font-size:12px">'+newComment.user+' ('+newComment.uid+')</span><span style="color:#98a2b3;font-size:10px">'+newComment.time+'</span></div>'
-+'<div style="color:#2b2f36;font-size:12px;background:#f8fafc;padding:6px 8px;border-radius:6px;word-break:break-all">'+newComment.content+'</div></div></div>';
-var emptyMsg=listEl.querySelector('div[style*="color:#98a2b3"]');
+var emptyMsg=listEl.querySelector('div[style*="text-align:center"]');
 if(emptyMsg)emptyMsg.remove();
+var html='<div style="display:flex;gap:8px;margin-bottom:12px">'
++'<div style="width:28px;height:28px;border-radius:50%;background:'+avatarBg+';color:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">'+initial+'</div>'
++'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span style="font-weight:600;color:#2b2f36;font-size:12px">'+newComment.user+'</span><span style="color:#98a2b3;font-size:10px">'+newComment.time+'</span></div>'
++'<div style="color:#2b2f36;font-size:12px;background:#f8fafc;padding:8px 10px;border-radius:6px;word-break:break-all">'+newComment.content+'</div></div></div>';
 listEl.insertAdjacentHTML('beforeend',html);
 listEl.scrollTop=listEl.scrollHeight}
 function backToChangeRecord(){changeRecordPage()}
