@@ -9,7 +9,7 @@
 </head>
 <body>
 <div class="top"><div class="logo">销售预测系统</div><div class="user">登录账号：张三｜数据权限：华东/华南区域</div></div>
-<div class="layout"><div class="side"><div class="m1">销售预测</div><div class="m2" data-page="history">历史销售预测</div><div class="m2" data-page="certain">确定性需求</div><div class="m2" data-page="exception">例外需求</div><div class="m2 on" data-page="summary">销售预测3+9需求汇总</div><div class="m2" data-page="ratio">历史销售预测计算比例维护</div></div><div class="main" id="app"></div></div><div class="footer">v3.0 高保真原型增强版</div>
+<div class="layout"><div class="side"><div class="m1">销售预测</div><div class="m2" data-page="history">历史销售预测</div><div class="m2" data-page="certain">确定性需求</div><div class="m2" data-page="exception">例外需求</div><div class="m2 on" data-page="summary">销售预测3+9需求汇总</div><div class="m2" data-page="ratio">历史销售预测计算比例维护</div><div class="m2" data-page="changeRecord">需求变更记录</div></div><div class="main" id="app"></div></div><div class="footer">v3.0 高保真原型增强版</div>
 <div class="modalMask" id="modalMask"><div class="modal" id="modal"><div class="modalHd"><span id="modalTitle"></span><span class="x" onclick="closeModal()">×</span></div><div class="modalBd" id="modalBody"></div><div class="modalFt" id="modalFoot"><button class="btn ghost" onclick="closeModal()">关闭</button></div></div></div>
 <script>
 const months=['M月','M1','M2','M3','M4','M5','M6','M7','M8','M9','M10','M11','M12'];
@@ -34,7 +34,7 @@ let ratioRows=[
 ];
 let exceptionRows=detailRows.filter(x=>x.src==='例外需求').concat([{...detailRows[2],src:'例外需求',doc:'EX-240805',status:'已撤回',apNo:'AP-FB-005',dt:'风险备货'},{...detailRows[0],src:'例外需求',doc:'TEST-FX-2026-001',status:'草稿',apNo:'—',dt:'新品上市需求提报',note:'测试数据-验证关务组审批流程',crt:'2026-08-14 09:00',crtBy:'张三'},{...detailRows[1],src:'例外需求',doc:'TEST-FX-2026-002',status:'草稿',apNo:'—',dt:'退市产品需求提报',note:'测试数据-验证营销子总审批流程',crt:'2026-08-14 09:10',crtBy:'张三'},{...detailRows[2],src:'例外需求',doc:'TEST-FX-2026-003',status:'草稿',apNo:'—',dt:'MTS备货',note:'测试数据-验证国区需求计划员节点',crt:'2026-08-14 09:20',crtBy:'张三'},{...detailRows[3],src:'例外需求',doc:'TEST-FX-2026-004',status:'草稿',apNo:'—',dt:'风险备货',note:'测试数据-对照组-保持原逻辑',crt:'2026-08-14 09:30',crtBy:'张三'},{...detailRows[0],src:'例外需求',doc:'FX-AP-2026-001',status:'已通过',apNo:'AP-PASS-001',dt:'MTS备货',note:'已审批通过-MTS常规备货',crt:'2026-08-10 10:00',crtBy:'张三',apTime:'2026-08-12 14:30',qtyA:500,dlvDate:'2026-09-15',changeStatus:'无变更',changeType:''},{...detailRows[1],src:'例外需求',doc:'FX-AP-2026-002',status:'已通过',apNo:'AP-PASS-002',dt:'新品上市需求提报',note:'已审批通过-新品上市',crt:'2026-08-09 09:00',crtBy:'李四',apTime:'2026-08-11 16:00',qtyA:300,dlvDate:'2026-09-20',changeStatus:'已变更',changeType:'交期提前',changeNo:'CR-2026-001',changeApplicant:'李四 / 2026-08-15 10:30',changeScore:'85',changeProject:'新品上市项目A',changeCustomer:'上海电子科技',changeReason:'客户要求提前交货以配合市场推广计划',changeAction:'已协调工厂提前安排生产排期',changeRisk:'可能影响其他订单的交货时间',changeFiles:'需求变更说明.pdf,客户确认函.pdf'},{...detailRows[2],src:'例外需求',doc:'FX-AP-2026-003',status:'已通过',apNo:'AP-PASS-003',dt:'风险备货',note:'已审批通过-风险备货',crt:'2026-08-08 11:00',crtBy:'王五',apTime:'2026-08-13 09:45',qtyA:200,dlvDate:'2026-10-01',totalAmt:'560000',changeStatus:'无变更',changeType:''},{...detailRows[3],src:'例外需求',doc:'FX-AP-2026-004',status:'已通过',apNo:'AP-PASS-004',dt:'退市产品需求提报',note:'已审批通过-退市尾单',crt:'2026-08-07 14:00',crtBy:'张三',apTime:'2026-08-10 11:20',qtyA:150,dlvDate:'2026-09-30',changeStatus:'已变更',changeType:'数量调增',changeNo:'CR-2026-002',changeApplicant:'张三 / 2026-08-16 14:20',changeScore:'72',changeProject:'退市尾单项目',changeCustomer:'江苏智能设备',changeReason:'市场需求增加，需追加备货数量',changeAction:'已联系供应商增加产能',changeRisk:'退市产品供应商产能有限，可能无法完全满足',changeFiles:'市场调研报告.xlsx'},{...detailRows[0],src:'例外需求',doc:'FX-AP-2026-005',status:'已通过',apNo:'AP-PASS-005',dt:'MTS备货',note:'已审批通过-批量备货',crt:'2026-08-06 08:30',crtBy:'赵六',apTime:'2026-08-09 17:00',qtyA:800,dlvDate:'2026-10-15',changeStatus:'无变更',changeType:''},{...detailRows[1],src:'例外需求',doc:'FX-AP-2026-006',status:'已通过',apNo:'AP-PASS-006',dt:'其他类型',note:'已审批通过-特殊需求',crt:'2026-08-05 15:00',crtBy:'李四',apTime:'2026-08-08 10:30',qtyA:100,dlvDate:'2026-09-25',changeStatus:'拒绝变更',changeType:'取消需求'}]);
 function tag(s){return `<span class="tag ${statusCls[s]||'graytag'}">${s}</span>`}function qty(i,j){let b=60+i*25+j*6,a=b+(j%3+1)*12;return [b,a]}function monthSub(){return months.map(m=>`<th>${m}<br><span style="font-weight:400;color:#98a2b3">前/后</span></th>`).join('')}function monthCells(row,click){return months.map((m,j)=>{let q=qty(row.pCode.charCodeAt(1)||1,j);let inner=`${q[0]} / <b>${q[1]}</b>`;return `<td>${click?`<span class="num" onclick="openCountryQty('${row.cCode}','${row.pCode}','${m}')">${inner}</span>`:inner}</td>`}).join('')}function pager(total){return `<div class="card" style="margin-top:10px"><div class="bar" style="justify-content:flex-end"><label>每页显示</label><select><option>10</option><option>20</option><option>50</option><option>100</option></select><span>总记录数：${total}</span><span>当前页码：1</span><button class="btn ghost">上一页</button><button class="btn ghost">下一页</button></div></div>`}
-function setPage(p){document.querySelectorAll('.m2').forEach(x=>x.classList.toggle('on',x.dataset.page===p)); if(p==='summary')summary(); else if(p==='ratio')ratioPage(); else if(p==='exception')exceptionPage(); else placeholder(p)}
+function setPage(p){document.querySelectorAll('.m2').forEach(x=>x.classList.toggle('on',x.dataset.page===p)); if(p==='summary')summary(); else if(p==='ratio')ratioPage(); else if(p==='exception')exceptionPage(); else if(p==='changeRecord')changeRecordPage(); else placeholder(p)}
 document.querySelectorAll('.m2').forEach(x=>x.onclick=()=>setPage(x.dataset.page));
 function filters(extra=''){return `<div class="card bar"><label>事业部</label><select><option>全部</option><option>电子事业部</option><option>通信事业部</option></select><label>大区</label><select><option>全部</option><option>华东大区</option><option>华南大区</option></select><label>国区</label><select><option>全部</option><option>沪苏国区</option><option>粤泰国区</option></select><label>月份</label><select>${months.map(x=>`<option>${x}</option>`).join('')}</select><button class="btn">查询</button><button class="btn ghost">重置</button>${extra}</div>`}
 // 用户信息模拟（实际项目通过 useUserInfo / API 获取）
@@ -415,6 +415,94 @@ function updateExApprovers(newType) {
 
 function placeholder(p){const name={history:'历史销售预测',certain:'确定性需求'}[p]||p;app.innerHTML=`<div class="crumb">销售预测 / <b>${name}</b></div><div class="card"><h3 style="color:#173763;margin-bottom:8px">${name}</h3><p>该菜单用于承载${name}业务页面，本次需求重点已在3+9需求汇总、例外需求、历史销售预测计算比例维护中实现。</p></div>`}
 function openModal(title,body,foot){modalTitle.innerHTML=title;modalBody.innerHTML=body;modalFoot.innerHTML=foot||'<button class="btn ghost" onclick="closeModal()">关闭</button>';modalMask.style.display='flex';document.getElementById('modal').classList.toggle('small',title.includes('确认'))}function closeModal(){modalMask.style.display='none'}function exportFile(name,desc){let now=new Date(),pad=n=>String(n).padStart(2,'0');let fmt=name.includes('比例')?`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}：${pad(now.getMinutes())}：${pad(now.getSeconds())}`:`${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;let file=`${name}_${fmt}.xlsx`;alert(`导出成功：${file}\n${desc}\n系统按当前查询条件导出全部匹配数据，不受分页限制，并按登录账号角色数据权限导出。`)}
+// === 需求变更记录 Mock 数据 ===
+let changeRecordRows=[
+{crNo:'CR-2026-001',crType:'交期提前',dt:'新品上市需求提报',origDoc:'FX-AP-2026-002',pCode:'P1001',crDesc:'客户要求提前30天交货',crReason:'市场推广计划提前',progressImpact:'需提前安排生产排期',costRisk:'可能影响其他订单交货时间',action:'已协调工厂提前生产',applicant:'李四',applyTime:'2026-08-15 10:30',origApproval:'AP-PASS-002',crApproval:'CR-AP-001',approvalStatus:'已通过',approver:'王总',files:'需求变更说明.pdf,客户确认函.pdf'},
+{crNo:'CR-2026-002',crType:'数量调增',dt:'退市产品需求提报',origDoc:'FX-AP-2026-004',pCode:'P2001',crDesc:'追加备货数量100台',crReason:'市场需求增加',progressImpact:'需增加产能',costRisk:'供应商产能有限',action:'已联系供应商增加产能',applicant:'张三',applyTime:'2026-08-16 14:20',origApproval:'AP-PASS-004',crApproval:'CR-AP-002',approvalStatus:'已通过',approver:'李总',files:'市场调研报告.xlsx'},
+{crNo:'CR-2026-003',crType:'取消需求',dt:'其他类型',origDoc:'FX-AP-2026-006',pCode:'P3001',crDesc:'取消该需求订单',crReason:'客户取消合作',progressImpact:'无',costRisk:'已产生部分物料成本',action:'停止采购相关物料',applicant:'李四',applyTime:'2026-08-17 09:00',origApproval:'AP-PASS-006',crApproval:'CR-AP-003',approvalStatus:'审批中',approver:'—',files:'客户取消通知函.pdf'},
+{crNo:'CR-2026-004',crType:'交期延后',dt:'MTS备货',origDoc:'FX-AP-2026-001',pCode:'P1001',crDesc:'延后交货15天',crReason:'仓库容量不足',progressImpact:'延后入库时间',costRisk:'无额外成本',action:'已协调仓库扩容',applicant:'张三',applyTime:'2026-08-18 11:30',origApproval:'AP-PASS-001',crApproval:'—',approvalStatus:'草稿',approver:'—',files:''},
+{crNo:'CR-2026-005',crType:'新增需求',dt:'风险备货',origDoc:'—',pCode:'P2001',crDesc:'新增紧急备货需求',crReason:'突发大客户需求',progressImpact:'需紧急采购物料',costRisk:'物料采购成本增加15%',action:'已启动紧急采购流程',applicant:'赵六',applyTime:'2026-08-19 08:45',origApproval:'—',crApproval:'CR-AP-005',approvalStatus:'已驳回',approver:'王总',files:'紧急需求说明.pdf,客户订单.pdf'},
+{crNo:'CR-2026-006',crType:'数量调减',dt:'新品上市需求提报',origDoc:'FX-AP-2026-003',pCode:'P3001',crDesc:'减少备货数量50台',crReason:'前期市场调研调整',progressImpact:'减少生产排期',costRisk:'无',action:'已调整生产计划',applicant:'王五',applyTime:'2026-08-20 15:00',origApproval:'AP-PASS-003',crApproval:'CR-AP-006',approvalStatus:'已通过',approver:'李总',files:'市场调研调整报告.pdf'}
+];
+function changeRecordPage(){
+app.innerHTML='<div class="crumb">销售预测 / <b>需求变更记录</b></div>'
++'<div class="card bar">'
++'<label>变更单号</label><input id="crF1" placeholder="请输入变更单号">'
++'<label>需求类型</label><select id="crF2"><option value="">全部</option><option>风险备货</option><option>MTS备货</option><option>退市产品需求提报</option><option>新品上市需求提报</option><option>其他类型</option></select>'
++'<label>变更类型</label><select id="crF3"><option value="">全部</option><option>交期提前</option><option>交期延后</option><option>数量调增</option><option>数量调减</option><option>取消需求</option><option>新增需求</option></select>'
++'<label>申请人</label><input id="crF4" placeholder="请输入申请人">'
++'<label>产品编码</label><input id="crF5" placeholder="请输入产品编码">'
++'<button class="btn" onclick="crDoQuery()">查询</button>'
++'<button class="btn ghost" onclick="crDoReset()">重置</button>'
++'<button class="btn" style="background:#32d583;border-color:#32d583" onclick="crDoExport()">导出</button>'
++'</div>'
++'<div id="crTable"></div>';
+crRenderTable(changeRecordRows)}
+function crRenderTable(rows){
+var cols=['变更单号','变更类型','需求类型','原单号','产品编码','变更描述','变更原因','进度影响','成本/风险说明','应对措施','申请人','申请时间','原审批单号','变更审批单号','审批状态','附件','操作'];
+var html='<div class="tablebox"><table><thead><tr>'+cols.map(function(c){return'<th>'+c+'</th>'}).join('')+'</tr></thead><tbody>';
+if(!rows.length){html+='<tr><td colspan="'+cols.length+'" style="text-align:center;padding:30px;color:#98a2b3">暂无数据</td></tr>'}
+rows.forEach(function(r){
+var statusCls=r.approvalStatus==='已通过'?'green':r.approvalStatus==='审批中'?'blue':r.approvalStatus==='已驳回'?'red':'graytag';
+var filesArr=(r.files||'').split(',').filter(Boolean);
+var filesHtml=filesArr.length?filesArr.map(function(f){return'<a onclick="alert(\'预览: '+f+'\')" style="color:#173763;cursor:pointer;font-size:11px;margin-right:4px">'+f+'</a>'}).join(''):'<span style="color:#98a2b3">无</span>';
+html+='<tr>'
++'<td style="color:#2f6edb;font-weight:700">'+r.crNo+'</td>'
++'<td>'+r.crType+'</td>'
++'<td>'+r.dt+'</td>'
++'<td>'+r.origDoc+'</td>'
++'<td>'+r.pCode+'</td>'
++'<td style="max-width:150px;white-space:normal;word-break:break-all">'+r.crDesc+'</td>'
++'<td style="max-width:150px;white-space:normal;word-break:break-all">'+r.crReason+'</td>'
++'<td style="max-width:120px;white-space:normal;word-break:break-all">'+r.progressImpact+'</td>'
++'<td style="max-width:150px;white-space:normal;word-break:break-all">'+r.costRisk+'</td>'
++'<td style="max-width:120px;white-space:normal;word-break:break-all">'+r.action+'</td>'
++'<td>'+r.applicant+'</td>'
++'<td>'+r.applyTime+'</td>'
++'<td>'+r.origApproval+'</td>'
++'<td>'+r.crApproval+'</td>'
++'<td><span class="tag '+statusCls+'">'+r.approvalStatus+'</span></td>'
++'<td style="max-width:160px">'+filesHtml+'</td>'
++'<td class="op"><a onclick="alert(\'查看详情: '+r.crNo+'\')">详情</a></td>'
++'</tr>'});
+html+='</tbody></table></div>';
+html+='<div class="card" style="margin-top:10px"><div class="bar" style="justify-content:flex-end"><label>每页显示</label><select><option>10</option><option>20</option><option>50</option><option>100</option></select><span>总记录数：'+rows.length+'</span><span>当前页码：1</span><button class="btn ghost">上一页</button><button class="btn ghost">下一页</button></div></div>';
+document.getElementById('crTable').innerHTML=html}
+function crDoQuery(){
+var f1=document.getElementById('crF1').value.trim();
+var f2=document.getElementById('crF2').value;
+var f3=document.getElementById('crF3').value;
+var f4=document.getElementById('crF4').value.trim();
+var f5=document.getElementById('crF5').value.trim();
+var result=changeRecordRows.filter(function(r){
+if(f1&&r.crNo.indexOf(f1)<0)return false;
+if(f2&&r.dt!==f2)return false;
+if(f3&&r.crType!==f3)return false;
+if(f4&&r.applicant.indexOf(f4)<0)return false;
+if(f5&&r.pCode.indexOf(f5)<0)return false;
+return true});
+crRenderTable(result)}
+function crDoReset(){
+document.getElementById('crF1').value='';
+document.getElementById('crF2').value='';
+document.getElementById('crF3').value='';
+document.getElementById('crF4').value='';
+document.getElementById('crF5').value='';
+crRenderTable(changeRecordRows)}
+function crDoExport(){
+var btn=event.target;var origText=btn.textContent;
+btn.disabled=true;btn.textContent='导出中...';btn.style.opacity='0.7';
+setTimeout(function(){
+var now=new Date();var ts=now.getFullYear()+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0')+'_'+String(now.getHours()).padStart(2,'0')+String(now.getMinutes()).padStart(2,'0')+String(now.getSeconds()).padStart(2,'0');
+var filename='需求变更记录_'+ts+'.csv';
+var headers=['变更单号','变更类型','需求类型','原单号','产品编码','变更描述','变更原因','进度影响','成本/风险说明','应对措施','申请人','申请时间','原审批单号','变更审批单号','审批状态','审批人','附件'];
+var csv='\uFEFF'+headers.join(',')+'\n';
+changeRecordRows.forEach(function(r){
+csv+=[r.crNo,r.crType,r.dt,r.origDoc,r.pCode,r.crDesc,r.crReason,r.progressImpact,r.costRisk,r.action,r.applicant,r.applyTime,r.origApproval,r.crApproval,r.approvalStatus,r.approver,r.files].map(function(v){return'"'+(v||'').replace(/"/g,'""')+'"'}).join(',')+'\n'});
+var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+var link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=filename;link.click();
+btn.disabled=false;btn.textContent=origText;btn.style.opacity='1';
+alert('导出成功！文件名：'+filename)},800)}
 setPage('summary');
 </script>
 </body>
