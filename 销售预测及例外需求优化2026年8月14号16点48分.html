@@ -214,8 +214,8 @@ function summaryDetailFilters() {
   let country = ['CN 中国', 'JP 日本', 'SG 新加坡', 'TH 泰国'];
   let war = ['W01 华东作战区', 'W02 苏南作战区', 'W03 珠三角作战区', 'W04 华北作战区'];
   let bu = ['BU01 电子事业部', 'BU02 通信事业部'];
-  let changeType = ['新增', '修改', '删除', '替换'];
-  let changeStatus = ['无变更', '变更中', '已变更', '已驳回'];
+  let changeType = ['交期提前', '交期延后', '数量调增', '数量调减', '取消需求'];
+  let changeStatus = ['无变更', '已变更', '变更中', '草稿', '拒绝变更'];
   let r30 = recent30Days();
 
   let fields = [
@@ -494,8 +494,8 @@ function exceptionFilters() {
   let ports = ['上海港', '深圳港', '天津港', '青岛港', '宁波港', '广州港', '厦门港', '大连港'];
   let trans = ['海运', '陆运'];
   let trade = ['暂无', '内贸', 'CFR', 'CIF', 'CIP', 'DAF', 'DAP', 'DDP', 'EXW', 'FCA', 'FOB', 'UN'];
-  let changeType = ['新增', '修改', '删除', '替换'];
-  let changeStatus = ['无变更', '变更中', '已变更', '已驳回'];
+  let changeType = ['交期提前', '交期延后', '数量调增', '数量调减', '取消需求'];
+  let changeStatus = ['无变更', '已变更', '变更中', '草稿', '拒绝变更'];
   let r30 = recent30Days();
 
   let fields = [
