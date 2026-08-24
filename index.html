@@ -521,20 +521,20 @@ var now=new Date();var applyTime=now.getFullYear()+'-'+String(now.getMonth()+1).
 var sec1='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">基本信息</b></div>'
 +'<div class="formgrid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">'
 +'<div class="field"><label>变更审批单号</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">'+apNo+'</div></div>'
-+'<div class="field"><label>数据来源</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">'+firstRow.dt+'</div></div>'
++'<div class="field"><label>数据来源</label><select id="crApSource" style="width:100%;height:32px;border:1px solid #d0d5dd;border-radius:4px;padding:0 8px"><option>例外需求</option><option>销售预测3+9</option><option>确定性需求</option></select></div>'
 +'<div class="field"><label>申请人姓名</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">当前用户</div></div>'
 +'<div class="field"><label>申请时间</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">'+applyTime+'</div></div>'
-+'<div class="field" style="grid-column:span 2"><label>应对措施</label><textarea id="crApAction" style="width:100%;height:50px;border:1px solid #d0d5dd;border-radius:4px;padding:6px 8px;font-size:12px;resize:vertical;font-family:inherit" placeholder="请输入应对措施">'+firstRow.action+'</textarea></div>'
-+'<div class="field"><label>风险成本说明</label><textarea id="crApCost" style="width:100%;height:50px;border:1px solid #d0d5dd;border-radius:4px;padding:6px 8px;font-size:12px;resize:vertical;font-family:inherit" placeholder="请输入风险成本说明">'+firstRow.costRisk+'</textarea></div>'
++'<div class="field"><label>应对措施</label><textarea id="crApAction" style="width:100%;height:50px;border:1px solid #d0d5dd;border-radius:4px;padding:6px 8px;font-size:12px;resize:vertical;font-family:inherit" placeholder="请输入应对措施">'+firstRow.action+'</textarea></div>'
++'<div class="field"><label>风险/成本说明</label><textarea id="crApCost" style="width:100%;height:50px;border:1px solid #d0d5dd;border-radius:4px;padding:6px 8px;font-size:12px;resize:vertical;font-family:inherit" placeholder="请输入风险/成本说明">'+firstRow.costRisk+'</textarea></div>'
 +'</div>';
 // Section 2: Change Reason
 var sec2='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">变更原因</b><span style="color:#d92d20;margin-left:4px">*</span></div>'
 +'<div style="margin-bottom:16px"><textarea id="crApReason" style="width:100%;height:70px;border:1px solid #d0d5dd;border-radius:4px;padding:8px;font-size:12px;resize:vertical;font-family:inherit" placeholder="请输入变更原因..." required>'+firstRow.crReason+'</textarea></div>';
 // Section 3: List Data
-var dtCols=['变更类型','产品编码','预计交货日期(修改前)','预计交货日期(修改后)','需求数量(修改前)','需求数量(修改后)','选配','配置说明','原单据号','版本号'];
-var sec3='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">列表数据</b></div>'
+var dtCols=['变更类型','产品编码','预计交货日期(修改前)','预计交货日期(修改后)','需求数量(修改前)','需求数量(修改后)','选配','配置说明','原单据号','需求类型','版本号'];
+var sec3='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">明细列表</b></div>'
 +'<div class="tablebox" style="max-height:180px;margin-bottom:8px"><table><thead><tr>'+dtCols.map(function(c){return'<th>'+c+'</th>'}).join('')+'</tr></thead><tbody>';
-canSubmit.forEach(function(idx){var r=changeRecordRows[idx];var det=crDetailMock[r.crNo];if(det){det.forEach(function(d){sec3+='<tr><td>'+d.crType+'</td><td>'+d.pCode+'</td><td>'+d.dlvBefore+'</td><td style="color:'+(d.dlvAfter!=='\u2014'&&d.dlvAfter!==d.dlvBefore?'#d92d20':'inherit')+'">'+d.dlvAfter+'</td><td>'+d.qtyBefore+'</td><td style="color:'+(d.qtyAfter!==d.qtyBefore?'#d92d20':'inherit')+'">'+d.qtyAfter+'</td><td>'+d.opt+'</td><td>'+d.cfg+'</td><td>'+d.origDoc+'</td><td>'+d.ver+'</td></tr>'})}else{sec3+='<tr><td>'+r.crType+'</td><td>'+r.pCode+'</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>'+r.origDoc+'</td><td>\u2014</td></tr>'}});
+canSubmit.forEach(function(idx){var r=changeRecordRows[idx];var det=crDetailMock[r.crNo];if(det){det.forEach(function(d){sec3+='<tr><td>'+d.crType+'</td><td>'+d.pCode+'</td><td>'+d.dlvBefore+'</td><td style="color:'+(d.dlvAfter!=='\u2014'&&d.dlvAfter!==d.dlvBefore?'#d92d20':'inherit')+'">'+d.dlvAfter+'</td><td>'+d.qtyBefore+'</td><td style="color:'+(d.qtyAfter!==d.qtyBefore?'#d92d20':'inherit')+'">'+d.qtyAfter+'</td><td>'+d.opt+'</td><td>'+d.cfg+'</td><td>'+d.origDoc+'</td><td>'+r.dt+'</td><td>'+d.ver+'</td></tr>'})}else{sec3+='<tr><td>'+r.crType+'</td><td>'+r.pCode+'</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>'+r.origDoc+'</td><td>'+r.dt+'</td><td>\u2014</td></tr>'}});
 sec3+='</tbody></table></div>'
 +'<div style="display:flex;justify-content:flex-end;gap:12px;font-size:12px;color:#667085;margin-bottom:16px"><span>共 '+canSubmit.length+' 条</span><span>10条/页</span><button class="btn ghost" style="height:24px;font-size:11px;padding:0 8px" disabled>上一页</button><button class="btn ghost" style="height:24px;font-size:11px;padding:0 8px" disabled>下一页</button></div>';
 // Section 4: Approver Info
@@ -553,7 +553,7 @@ var sec5='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bot
 // Open modal
 var body=sec1+sec2+sec3+sec4+sec5;
 var foot='<button class="btn ghost" onclick="closeModal()" style="margin-right:8px">取消</button><button class="btn" onclick="crDoLaunchApproval(\''+apNo+'\','+JSON.stringify(canSubmit)+')">发起审批</button>';
-openModal('提交变更审批（'+apNo+'）',body,foot)}
+openModal('提交变更审批（变更审批单号 '+apNo+'）',body,foot)}
 function crDoLaunchApproval(apNo,idxsArr){
 var reason=document.getElementById('crApReason').value.trim();
 if(!reason){alert('请填写变更原因！');return}
