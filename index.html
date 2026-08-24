@@ -145,28 +145,28 @@ function qMonth(label, opts2) {
 // 多选下拉组件（带Tag展示和清空功能）
 function qMultiSelect(label, options, id) {
   var optsHtml = options.map(function(o) {
-    return '<label style="display:flex;align-items:center;gap:6px;padding:4px 8px;cursor:pointer"><input type="checkbox" value="' + o + '" onchange="updateMultiSelectTags(\'' + id + '\')">' + o + '</label>';
+    return '<label style="display:flex;align-items:center;gap:6px;padding:6px 10px;cursor:pointer;font-size:13px;color:#2b2f36" onmouseover="this.style.background=\'#f4f7fb\'" onmouseout="this.style.background=\'transparent\'"><input type="checkbox" value="' + o + '" onchange="updateMultiSelectTags(\'' + id + '\')">' + o + '</label>';
   }).join('');
   return '<div class="field" style="position:relative"><label>' + label + '</label>'
     + '<div id="' + id + '" class="multi-select" style="width:100%;min-height:34px;border:1px solid #d0d5dd;border-radius:4px;padding:4px 28px 4px 8px;cursor:pointer;background:#fff;position:relative" onclick="toggleMultiSelect(\'' + id + '\')">'
     + '<span class="multi-tags" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;min-height:24px"></span>'
     + '<span class="multi-placeholder" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#98a2b3;pointer-events:none">请选择</span>'
     + '<span class="multi-clear" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#98a2b3;cursor:pointer;font-size:14px;display:none" onclick="event.stopPropagation();clearMultiSelect(\'' + id + '\')">&times;</span>'
+    + '<div class="multi-dropdown" style="display:none;position:absolute;left:-1px;right:-1px;top:100%;background:#fff;border:1px solid #d0d5dd;border-radius:4px;max-height:200px;overflow-y:auto;z-index:1000;margin-top:2px;box-shadow:0 4px 12px rgba(0,0,0,0.15)">' + optsHtml + '</div>'
     + '</div>'
-    + '<div class="multi-dropdown" style="display:none;position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #d0d5dd;border-radius:4px;max-height:200px;overflow-y:auto;z-index:100;margin-top:2px;box-shadow:0 4px 8px rgba(0,0,0,0.1)">' + optsHtml + '</div>'
     + '<input type="hidden" class="multi-value" id="' + id + '_value">'
     + '</div>';
 }
 function toggleMultiSelect(id) {
   var el = document.getElementById(id);
-  var dropdown = el.nextElementSibling;
+  var dropdown = el.querySelector('.multi-dropdown');
   var isOpen = dropdown.style.display === 'block';
   document.querySelectorAll('.multi-dropdown').forEach(function(d) { d.style.display = 'none'; });
   if (!isOpen) dropdown.style.display = 'block';
 }
 function updateMultiSelectTags(id) {
   var el = document.getElementById(id);
-  var dropdown = el.nextElementSibling;
+  var dropdown = el.querySelector('.multi-dropdown');
   var checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
   var selected = [];
   checkboxes.forEach(function(cb) { if (cb.checked) selected.push(cb.value); });
@@ -190,14 +190,14 @@ function updateMultiSelectTags(id) {
 }
 function removeMultiSelectTag(id, value) {
   var el = document.getElementById(id);
-  var dropdown = el.nextElementSibling;
+  var dropdown = el.querySelector('.multi-dropdown');
   var checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
   checkboxes.forEach(function(cb) { if (cb.value === value) cb.checked = false; });
   updateMultiSelectTags(id);
 }
 function clearMultiSelect(id) {
   var el = document.getElementById(id);
-  var dropdown = el.nextElementSibling;
+  var dropdown = el.querySelector('.multi-dropdown');
   var checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
   checkboxes.forEach(function(cb) { cb.checked = false; });
   updateMultiSelectTags(id);
