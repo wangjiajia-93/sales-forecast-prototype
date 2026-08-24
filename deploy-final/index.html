@@ -282,8 +282,8 @@ body+='</tbody></table></div>'
 +'<div class="field"><label>二级审批人</label><select id="sumAp2"><option value="">请选择（可选）</option><option>manager01 王总监</option><option>manager02 赵总监</option></select></div>'
 +'<div class="field"><label>三级审批人</label><select id="sumAp3"><option value="">请选择（可选）</option><option>director01 刘总</option><option>director02 陈总</option></select></div>'
 +'</div>'
-+'<h4 style="color:#173763;margin:0 0 8px;font-size:14px">附件信息</h4>'
-+'<div style="margin-bottom:8px"><button class="btn" onclick="sumApAddFile()" style="border-color:#2f6edb;color:#2f6edb">+ 添加附件</button></div>'
++'<h4 style="color:#173763;margin:0 0 8px;font-size:14px">其他附件</h4>'
++'<div style="margin-bottom:8px"><button class="btn" onclick="sumApAddFile()" style="background:#2f6edb;border-color:#2f6edb;color:#fff">+ 添加附件</button></div>'
 +'<div class="tablebox" style="max-height:150px"><table><thead><tr><th>文件名称</th><th>文件ID</th><th style="position:sticky;right:0;background:#f8fafc;z-index:4">操作</th></tr></thead><tbody id="sumApAttachBody"><tr><td colspan="3" style="text-align:center;color:#98a2b3;padding:16px">暂无附件，请点击「添加附件」上传</td></tr></tbody></table></div>';
 var foot='<button class="btn ghost" onclick="closeModal()" style="margin-right:8px">取消</button><button class="btn" onclick="sumDoLaunchChangeApproval(\''+apNo+'\','+JSON.stringify(canSubmit)+')">发起审批</button>';
 openModal('提交变更审批（审批单号'+apNo+'）',body,foot)}
