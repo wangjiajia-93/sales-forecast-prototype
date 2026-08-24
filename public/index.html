@@ -435,22 +435,29 @@ app.innerHTML='<div class="crumb">销售预测 / <b>需求变更记录</b></div>
 +'<button class="btn" onclick="crDoQuery()">查询</button>'
 +'<button class="btn ghost" onclick="crDoReset()">重置</button>'
 +'</div>'
-+'<div class="card" style="padding:10px 14px"><div class="bar"><button class="btn" onclick="crDoExport()">导出</button></div></div>'
++'<div class="card" style="padding:10px 14px"><div class="bar">'
++'<button class="btn" onclick="crDoExport()">导出</button>'
++'<button class="btn ghost" onclick="crDoWithdraw()">撤回</button>'
++'<button class="btn ghost" style="color:#d92d20;border-color:#d92d20" onclick="crDoDiscard()">废弃</button>'
++'<button class="btn" style="background:#138a4a;border-color:#138a4a" onclick="crDoSubmitApproval()">提交变更审批</button>'
++'</div></div>'
 +'<div id="crTable"></div>';
 crRenderTable(changeRecordRows)}
 function crRenderTable(rows){
-var cols=['变更单号','变更类型','需求类型','原单号','产品编码','变更描述','变更原因','进度影响','成本/风险说明','应对措施','申请人','申请时间','原审批单号','变更审批单号','审批状态','附件'];
-var html='<div class="tablebox"><table><thead><tr>'+cols.map(function(c){return'<th>'+c+'</th>'}).join('')+'</tr></thead><tbody>';
+var cols=['','变更单号','变更类型','需求类型','原单号','产品编码','变更描述','变更原因','进度影响','成本/风险说明','应对措施','申请人','申请时间','原审批单号','变更审批单号','审批状态','附件'];
+var html='<div class="tablebox"><table><thead><tr>'+cols.map(function(c){return c===''?'<th style="width:36px"><input type="checkbox" onclick="crToggleAll(this)"></th>':'<th>'+c+'</th>'}).join('')+'</tr></thead><tbody>';
 if(!rows.length){html+='<tr><td colspan="'+cols.length+'" style="text-align:center;padding:30px;color:#98a2b3">暂无数据</td></tr>'}
-rows.forEach(function(r){
+rows.forEach(function(r,i){
 var statusCls=r.approvalStatus==='已通过'?'green':r.approvalStatus==='审批中'?'blue':r.approvalStatus==='已驳回'?'red':'graytag';
 var filesArr=(r.files||'').split(',').filter(Boolean);
 var filesHtml=filesArr.length?filesArr.map(function(f){return'<a onclick="alert(\'预览: '+f+'\')" style="color:#173763;cursor:pointer;font-size:11px;margin-right:4px">'+f+'</a>'}).join(''):'<span style="color:#98a2b3">无</span>';
+var crTypeLink='<a onclick="crNavigateToDetail(\''+r.origDoc+'\',\''+r.pCode+'\')" style="color:#2f6edb;cursor:pointer;font-weight:500">'+r.crType+'</a>';
 html+='<tr>'
++'<td><input type="checkbox" data-idx="'+i+'" class="crRowCb"></td>'
 +'<td style="color:#2f6edb;font-weight:700">'+r.crNo+'</td>'
-+'<td>'+r.crType+'</td>'
++'<td>'+crTypeLink+'</td>'
 +'<td>'+r.dt+'</td>'
-+'<td>'+r.origDoc+'</td>'
++'<td>'+(r.origDoc&&r.origDoc!=='\u2014'?'<a onclick="crNavigateToDetail(\''+r.origDoc+'\',\''+r.pCode+'\')" style="color:#2f6edb;cursor:pointer">'+r.origDoc+'</a>':r.origDoc)+'</td>'
 +'<td>'+r.pCode+'</td>'
 +'<td style="max-width:150px;white-space:normal;word-break:break-all">'+r.crDesc+'</td>'
 +'<td style="max-width:150px;white-space:normal;word-break:break-all">'+r.crReason+'</td>'
@@ -502,6 +509,12 @@ var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
 var link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=filename;link.click();
 btn.disabled=false;btn.textContent=origText;btn.style.opacity='1';
 alert('导出成功！文件名：'+filename)},800)}
+function crGetSelected(){var cbs=document.querySelectorAll('.crRowCb:checked');return Array.from(cbs).map(function(cb){return parseInt(cb.dataset.idx)})}
+function crToggleAll(el){var cbs=document.querySelectorAll('.crRowCb');cbs.forEach(function(cb){cb.checked=el.checked})}
+function crDoWithdraw(){var idxs=crGetSelected();if(!idxs.length){alert('请先勾选需要撤回的记录！');return}var canWithdraw=idxs.filter(function(i){return changeRecordRows[i].approvalStatus==='审批中'});if(!canWithdraw.length){alert('所选记录中没有可撤回的数据（仅审批中状态可撤回）！');return}canWithdraw.forEach(function(i){changeRecordRows[i].approvalStatus='草稿'});alert('已撤回 '+canWithdraw.length+' 条记录！');crRenderTable(changeRecordRows)}
+function crDoDiscard(){var idxs=crGetSelected();if(!idxs.length){alert('请先勾选需要废弃的记录！');return}var canDiscard=idxs.filter(function(i){return changeRecordRows[i].approvalStatus==='草稿'||changeRecordRows[i].approvalStatus==='已驳回'});if(!canDiscard.length){alert('所选记录中没有可废弃的数据（仅草稿或已驳回状态可废弃）！');return}if(!confirm('确认废弃选中的 '+canDiscard.length+' 条记录？废弃后不可恢复！'))return;canDiscard.forEach(function(i){changeRecordRows[i].approvalStatus='已废弃'});alert('已废弃 '+canDiscard.length+' 条记录！');crRenderTable(changeRecordRows)}
+function crDoSubmitApproval(){var idxs=crGetSelected();if(!idxs.length){alert('请先勾选需要提交审批的记录！');return}var canSubmit=idxs.filter(function(i){return changeRecordRows[i].approvalStatus==='草稿'});if(!canSubmit.length){alert('所选记录中没有可提交审批的数据（仅草稿状态可提交）！');return}canSubmit.forEach(function(i){changeRecordRows[i].approvalStatus='审批中';changeRecordRows[i].crApproval='CR-AP-'+String(Math.floor(Math.random()*900+100))});alert('已提交 '+canSubmit.length+' 条记录至审批流程！');crRenderTable(changeRecordRows)}
+function crNavigateToDetail(origDoc,pCode){if(!origDoc||origDoc==='\u2014'||origDoc==='—'){alert('该记录无关联原单号，无法跳转');return}var isException=origDoc.indexOf('FX-AP')===0;if(isException){setPage('exception');alert('跳转至例外需求页面\n原单号：'+origDoc+'\n产品编码：'+pCode+'\n（实际环境中将筛选并定位到对应数据行）')}else{setPage('summary');alert('跳转至销售预测3+9需求汇总页面\n原单号：'+origDoc+'\n产品编码：'+pCode+'\n（实际环境中将筛选并定位到对应数据行）')}}
 // === 审批详情 Mock 数据 ===
 var crDetailMock={
 'CR-2026-001':[{crType:'交期提前',pCode:'P1001',dlvBefore:'2026-10-15',dlvAfter:'2026-09-15',qtyBefore:300,qtyAfter:300,opt:'标准配置',cfg:'整机含电源模块',origDoc:'FX-AP-2026-002',ver:'V1.2'}],
