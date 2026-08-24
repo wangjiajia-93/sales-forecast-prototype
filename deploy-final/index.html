@@ -266,11 +266,11 @@ var body='<h4 style="color:#173763;margin:0 0 8px;font-size:14px">基本信息</
 +'<div class="field"><label>数据来源</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">销售预测3+9</div></div>'
 +'<div class="field"><label>申请人姓名</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">张三</div></div>'
 +'<div class="field"><label>申请时间</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">'+applyTime+'</div></div>'
-+'<div class="field"><label>应对措施</label><textarea id="sumApAction" rows="2" style="width:100%;border:1px solid #d0d5dd;border-radius:4px;padding:8px;font-family:inherit" placeholder="请输入应对措施"></textarea></div>'
-+'<div class="field"><label>风险/成本说明</label><textarea id="sumApRisk" rows="2" style="width:100%;border:1px solid #d0d5dd;border-radius:4px;padding:8px;font-family:inherit" placeholder="请输入风险/成本说明"></textarea></div>'
++'<div class="field"><label>应对措施</label><div style="color:#2b2f36;padding:6px 10px;background:#f9fafb;border:1px solid #e4e7ec;border-radius:4px;min-height:36px">'+(firstRow.changeAction||'—')+'</div></div>'
++'<div class="field"><label>风险/成本说明</label><div style="color:#2b2f36;padding:6px 10px;background:#f9fafb;border:1px solid #e4e7ec;border-radius:4px;min-height:36px">'+(firstRow.changeRisk||'—')+'</div></div>'
 +'</div>'
 +'<h4 style="color:#173763;margin:0 0 8px;font-size:14px">变更原因</h4>'
-+'<div class="field" style="margin-bottom:14px"><label class="req">变更原因</label><textarea id="sumApReason" rows="3" style="width:100%;border:1px solid #d0d5dd;border-radius:4px;padding:8px;font-family:inherit" placeholder="请输入变更原因..."></textarea></div>'
++'<div class="field" style="margin-bottom:14px"><label>变更原因</label><div style="color:#2b2f36;padding:8px 10px;background:#f9fafb;border:1px solid #e4e7ec;border-radius:4px;min-height:40px">'+(firstRow.changeReason||'—')+'</div></div>'
 +'<h4 style="color:#173763;margin:0 0 8px;font-size:14px">明细列表</h4>'
 +'<div class="tablebox" style="max-height:220px"><table><thead><tr><th>变更类型</th><th>产品编码</th><th>预计交货日期(修改前)</th><th>预计交货日期(修改后)</th><th>需求数量(修改前)</th><th>需求数量(修改后)</th><th>选配</th><th>配置说明</th><th>原单据号</th><th>版本号</th></tr></thead><tbody>';
 canSubmit.forEach(function(i){var d=detailRows[i];body+='<tr><td>'+(d.changeType||'—')+'</td><td>'+d.pCode+'</td><td>'+d.dlvDate+'</td><td>'+(d.dlvDateModified||'—')+'</td><td>'+d.qtyB+'</td><td><b>'+d.qtyA+'</b></td><td>'+d.opt+'</td><td>'+d.cfg+'</td><td>'+d.doc+'</td><td>'+d.ver+'</td></tr>'});
@@ -291,8 +291,6 @@ var _sumApFiles=[];
 function sumApAddFile(){var name='attachment_'+(_sumApFiles.length+1)+'_'+String(Math.floor(Math.random()*900+100))+'.pdf';var fid='ATT-'+Math.random().toString(36).substr(2,8).toUpperCase();_sumApFiles.push({name:name,id:fid});var tbody=document.getElementById('sumApAttachBody');if(!tbody)return;var html='';_sumApFiles.forEach(function(f,idx){html+='<tr><td>'+f.name+'</td><td>'+f.id+'</td><td style="position:sticky;right:0;background:#fff;z-index:3"><a onclick="sumApRemoveFile('+idx+')" style="color:#d92d20;cursor:pointer;margin-right:8px">删除</a><a onclick="apDownloadFile(\''+f.name+'\')" style="color:#2f6edb;cursor:pointer">下载</a></td></tr>'});tbody.innerHTML=html}
 function sumApRemoveFile(idx){_sumApFiles.splice(idx,1);var tbody=document.getElementById('sumApAttachBody');if(!tbody)return;if(!_sumApFiles.length){tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:#98a2b3;padding:16px">暂无附件，请点击「添加附件」上传</td></tr>';return}var html='';_sumApFiles.forEach(function(f,i){html+='<tr><td>'+f.name+'</td><td>'+f.id+'</td><td style="position:sticky;right:0;background:#fff;z-index:3"><a onclick="sumApRemoveFile('+i+')" style="color:#d92d20;cursor:pointer;margin-right:8px">删除</a><a onclick="apDownloadFile(\''+f.name+'\')" style="color:#2f6edb;cursor:pointer">下载</a></td></tr>'});tbody.innerHTML=html}
 function sumDoLaunchChangeApproval(apNo,idxsArr){
-var reason=document.getElementById('sumApReason').value.trim();
-if(!reason){alert('请填写变更原因！');return}
 var ap1=document.getElementById('sumAp1').value;
 if(!ap1){alert('请选择一级审批人！');return}
 closeModal();alert('审批已发起！\n审批单号：'+apNo+'\n已提交 '+idxsArr.length+' 条记录');
@@ -329,12 +327,12 @@ var sec1='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bot
 +'<div class="field"><label>数据来源</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">例外需求</div></div>'
 +'<div class="field"><label>申请人姓名</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">当前用户</div></div>'
 +'<div class="field"><label>申请时间</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">'+applyTime+'</div></div>'
-+'<div class="field"><label>应对措施</label><textarea id="exApAction" style="width:100%;height:50px;border:1px solid #d0d5dd;border-radius:4px;padding:6px 8px;font-size:12px;resize:vertical;font-family:inherit" placeholder="请输入应对措施"></textarea></div>'
-+'<div class="field"><label>风险/成本说明</label><textarea id="exApCost" style="width:100%;height:50px;border:1px solid #d0d5dd;border-radius:4px;padding:6px 8px;font-size:12px;resize:vertical;font-family:inherit" placeholder="请输入风险/成本说明"></textarea></div>'
++'<div class="field"><label>应对措施</label><div style="color:#2b2f36;padding:6px 10px;background:#f9fafb;border:1px solid #e4e7ec;border-radius:4px;min-height:36px">'+(firstRow.changeAction||'—')+'</div></div>'
++'<div class="field"><label>风险/成本说明</label><div style="color:#2b2f36;padding:6px 10px;background:#f9fafb;border:1px solid #e4e7ec;border-radius:4px;min-height:36px">'+(firstRow.changeRisk||'—')+'</div></div>'
 +'</div>';
 // Section 2: Change Reason
-var sec2='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">变更原因</b><span style="color:#d92d20;margin-left:4px">*</span></div>'
-+'<div style="margin-bottom:16px"><textarea id="exApReason" style="width:100%;height:70px;border:1px solid #d0d5dd;border-radius:4px;padding:8px;font-size:12px;resize:vertical;font-family:inherit" placeholder="请输入变更原因..." required></textarea></div>';
+var sec2='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">变更原因</b></div>'
++'<div style="margin-bottom:16px"><div style="color:#2b2f36;padding:8px 10px;background:#f9fafb;border:1px solid #e4e7ec;border-radius:4px;min-height:40px">'+(firstRow.changeReason||'—')+'</div></div>';
 // Section 3: List Data
 var dtCols=['变更类型','产品编码','预计交货日期(修改前)','预计交货日期(修改后)','需求数量(修改前)','需求数量(修改后)','选配','配置说明','原单据号','版本号'];
 var sec3='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">明细列表</b></div>'
@@ -360,8 +358,6 @@ var body=sec1+sec2+sec3+sec4+sec5;
 var foot='<button class="btn ghost" onclick="closeModal()" style="margin-right:8px">取消</button><button class="btn" onclick="exDoLaunchChangeApproval(\''+apNo+'\','+JSON.stringify(canSubmit)+')">发起审批</button>';
 openModal('提交变更审批（审批单号'+apNo+'）',body,foot)}
 function exDoLaunchChangeApproval(apNo,idxsArr){
-var reason=document.getElementById('exApReason').value.trim();
-if(!reason){alert('请填写变更原因！');return}
 var ap1=document.getElementById('exAp1').value;
 if(!ap1){alert('请选择一级审批人！');return}
 idxsArr.forEach(function(i){exceptionRows[i].changeStatus='变更中';exceptionRows[i].crApprovalNo=apNo});
