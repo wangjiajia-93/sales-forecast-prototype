@@ -432,14 +432,14 @@ app.innerHTML='<div class="crumb">销售预测 / <b>需求变更记录</b></div>
 +'<label>变更类型</label><select id="crF3"><option value="">全部</option><option>交期提前</option><option>交期延后</option><option>数量调增</option><option>数量调减</option><option>取消需求</option><option>新增需求</option></select>'
 +'<label>申请人</label><input id="crF4" placeholder="请输入申请人">'
 +'<label>产品编码</label><input id="crF5" placeholder="请输入产品编码">'
++'<button class="btn" onclick="crDoExport()">导出</button>'
 +'<button class="btn" onclick="crDoQuery()">查询</button>'
 +'<button class="btn ghost" onclick="crDoReset()">重置</button>'
-+'<button class="btn" style="background:#32d583;border-color:#32d583" onclick="crDoExport()">导出</button>'
 +'</div>'
 +'<div id="crTable"></div>';
 crRenderTable(changeRecordRows)}
 function crRenderTable(rows){
-var cols=['变更单号','变更类型','需求类型','原单号','产品编码','变更描述','变更原因','进度影响','成本/风险说明','应对措施','申请人','申请时间','原审批单号','变更审批单号','审批状态','附件','操作'];
+var cols=['变更单号','变更类型','需求类型','原单号','产品编码','变更描述','变更原因','进度影响','成本/风险说明','应对措施','申请人','申请时间','原审批单号','变更审批单号','审批状态','附件'];
 var html='<div class="tablebox"><table><thead><tr>'+cols.map(function(c){return'<th>'+c+'</th>'}).join('')+'</tr></thead><tbody>';
 if(!rows.length){html+='<tr><td colspan="'+cols.length+'" style="text-align:center;padding:30px;color:#98a2b3">暂无数据</td></tr>'}
 rows.forEach(function(r){
@@ -463,7 +463,6 @@ html+='<tr>'
 +'<td>'+r.crApproval+'</td>'
 +'<td><span class="tag '+statusCls+'">'+r.approvalStatus+'</span></td>'
 +'<td style="max-width:160px">'+filesHtml+'</td>'
-+'<td class="op"><a onclick="alert(\'查看详情: '+r.crNo+'\')">详情</a></td>'
 +'</tr>'});
 html+='</tbody></table></div>';
 html+='<div class="card" style="margin-top:10px"><div class="bar" style="justify-content:flex-end"><label>每页显示</label><select><option>10</option><option>20</option><option>50</option><option>100</option></select><span>总记录数：'+rows.length+'</span><span>当前页码：1</span><button class="btn ghost">上一页</button><button class="btn ghost">下一页</button></div></div>';
