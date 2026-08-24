@@ -145,7 +145,7 @@ function qMonth(label, opts2) {
 // 多选下拉组件（带Tag展示和清空功能）
 function qMultiSelect(label, options, id) {
   var optsHtml = options.map(function(o) {
-    return '<label style="display:flex;align-items:center;gap:6px;padding:6px 10px;cursor:pointer;font-size:13px;color:#2b2f36" onmouseover="this.style.background=\'#f4f7fb\'" onmouseout="this.style.background=\'transparent\'"><input type="checkbox" value="' + o + '" onchange="updateMultiSelectTags(\'' + id + '\')">' + o + '</label>';
+    return '<label style="display:flex;align-items:center;gap:6px;padding:6px 10px;cursor:pointer;font-size:13px;color:#000" onmouseover="this.style.background=\'#f4f7fb\'" onmouseout="this.style.background=\'transparent\'"><input type="checkbox" value="' + o + '" onchange="updateMultiSelectTags(\'' + id + '\')">' + o + '</label>';
   }).join('');
   return '<div class="field" style="position:relative"><label>' + label + '</label>'
     + '<div id="' + id + '" class="multi-select" style="width:100%;min-height:34px;border:1px solid #d0d5dd;border-radius:4px;padding:4px 28px 4px 8px;cursor:pointer;background:#fff;position:relative" onclick="toggleMultiSelect(\'' + id + '\')">'
