@@ -503,6 +503,13 @@ var link=document.createElement('a');link.href=URL.createObjectURL(blob);link.do
 btn.disabled=false;btn.textContent=origText;btn.style.opacity='1';
 alert('导出成功！文件名：'+filename)},800)}
 // === 审批详情 Mock 数据 ===
+var crDetailMock={
+'CR-2026-001':[{crType:'交期提前',pCode:'P1001',dlvBefore:'2026-10-15',dlvAfter:'2026-09-15',qtyBefore:300,qtyAfter:300,opt:'标准配置',cfg:'整机含电源模块',origDoc:'FX-AP-2026-002',ver:'V1.2'}],
+'CR-2026-002':[{crType:'数量调增',pCode:'P2001',dlvBefore:'2026-09-30',dlvAfter:'2026-09-30',qtyBefore:150,qtyAfter:250,opt:'标准配置',cfg:'含软件授权',origDoc:'FX-AP-2026-004',ver:'V1.0'}],
+'CR-2026-003':[{crType:'取消需求',pCode:'P3001',dlvBefore:'2026-09-25',dlvAfter:'—',qtyBefore:100,qtyAfter:0,opt:'选配A',cfg:'—',origDoc:'FX-AP-2026-006',ver:'V2.1'}],
+'CR-2026-005':[{crType:'新增需求',pCode:'P2001',dlvBefore:'—',dlvAfter:'2026-11-15',qtyBefore:0,qtyAfter:500,opt:'标准配置',cfg:'含安装服务',origDoc:'—',ver:'V1.0'}],
+'CR-2026-006':[{crType:'数量调减',pCode:'P3001',dlvBefore:'2026-10-01',dlvAfter:'2026-10-01',qtyBefore:200,qtyAfter:150,opt:'—',cfg:'控制模组C3标准版',origDoc:'FX-AP-2026-003',ver:'V1.3'}]
+};
 var crApprovalMock={
 'CR-2026-001':{timeline:[
 {node:'提交申请',user:'李四',status:'已通过',opinion:'提交需求变更申请',time:'2026-08-15 10:30'},
@@ -542,44 +549,46 @@ function openCrApproval(crNo){
 var row=null;for(var i=0;i<changeRecordRows.length;i++){if(changeRecordRows[i].crNo===crNo){row=changeRecordRows[i];break}}
 if(!row)return;
 var mock=crApprovalMock[crNo]||{timeline:[{node:'提交申请',user:row.applicant,status:'已通过',opinion:'提交变更申请',time:row.applyTime}],comments:[]};
-var statusColor={'已通过':'#138a4a','待办':'#1d5fd1','已驳回':'#c42626','草稿':'#667085'};
+var details=crDetailMock[crNo]||[{crType:row.crType,pCode:row.pCode,dlvBefore:'—',dlvAfter:'—',qtyBefore:'—',qtyAfter:'—',opt:'—',cfg:'—',origDoc:row.origDoc,ver:'—'}];
 var dotColor={'已通过':'#138a4a','待办':'#1d5fd1','已驳回':'#c42626'};
 // Title
 var titleHtml='<div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 12px;border-bottom:1px solid #e8edf5;margin-bottom:14px">'
 +'<div><span style="font-size:15px;font-weight:700;color:#173763">'+row.applicant+'提交的'+row.dt+'（审批单号：'+row.crApproval+'）</span></div>'
 +'<div style="display:flex;gap:8px"><button class="btn ghost" onclick="alert(\'打印功能\')">&#128424; 打印</button><button class="btn ghost" onclick="alert(\'传阅功能\')">&#128228; 传阅</button><button class="btn ghost" onclick="backToChangeRecord()">&#8592; 返回</button></div></div>';
-// Left sections
-var sec1='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">基本信息</b></div>'
-+'<div class="card" style="margin-bottom:14px"><div class="formgrid" style="grid-template-columns:repeat(3,1fr)">'
-+'<div class="field"><label style="color:#98a2b3">需求类型</label><div style="color:#2b2f36;font-weight:500">'+row.dt+'</div></div>'
+// Tab1: 审批内容
+var sec1Title='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">基本信息</b></div>';
+var sec1='<div class="card" style="margin-bottom:14px"><div class="formgrid" style="grid-template-columns:repeat(3,1fr)">'
++'<div class="field"><label style="color:#98a2b3">数据来源</label><div style="color:#2b2f36;font-weight:500">'+row.dt+'</div></div>'
 +'<div class="field"><label style="color:#98a2b3">变更类型</label><div style="color:#2b2f36;font-weight:500">'+row.crType+'</div></div>'
 +'<div class="field"><label style="color:#98a2b3">申请人</label><div style="color:#2b2f36;font-weight:500">'+row.applicant+'</div></div>'
 +'<div class="field"><label style="color:#98a2b3">申请时间</label><div style="color:#2b2f36;font-weight:500">'+row.applyTime+'</div></div>'
 +'<div class="field"><label style="color:#98a2b3">关联原单号</label><div style="color:#2b2f36;font-weight:500">'+row.origDoc+'</div></div>'
 +'<div class="field"><label style="color:#98a2b3">审批状态</label><div><span class="tag '+(row.approvalStatus==='已通过'?'green':row.approvalStatus==='审批中'?'blue':row.approvalStatus==='已驳回'?'red':'graytag')+'">'+row.approvalStatus+'</span></div></div>'
-+'</div></div>';
-var sec2='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">变更明细</b></div>'
-+'<div class="card" style="margin-bottom:14px"><div class="tablebox" style="max-height:200px"><table><thead><tr><th>产品编码</th><th>变更描述</th><th>进度影响</th><th>成本/风险说明</th><th>应对措施</th></tr></thead><tbody><tr>'
-+'<td>'+row.pCode+'</td>'
-+'<td style="max-width:180px;white-space:normal">'+row.crDesc+'</td>'
-+'<td style="max-width:140px;white-space:normal">'+row.progressImpact+'</td>'
-+'<td style="max-width:180px;white-space:normal">'+row.costRisk+'</td>'
-+'<td style="max-width:140px;white-space:normal">'+row.action+'</td>'
-+'</tr></tbody></table></div>'
-+'<div style="margin-top:10px"><label style="color:#98a2b3;font-size:12px;display:block;margin-bottom:4px">变更原因</label><div style="background:#f8fafc;border:1px solid #e8edf5;border-radius:4px;padding:8px 10px;color:#2b2f36;font-size:13px;min-height:36px">'+row.crReason+'</div></div>'
++'</div>'
++'<div class="formgrid" style="grid-template-columns:1fr 1fr;margin-top:10px">'
++'<div class="field" style="grid-column:span 1"><label style="color:#98a2b3">变更原因</label><div style="color:#2b2f36;background:#f8fafc;border:1px solid #e8edf5;border-radius:4px;padding:8px 10px;min-height:36px;font-size:13px">'+row.crReason+'</div></div>'
++'<div class="field" style="grid-column:span 1"><label style="color:#98a2b3">应对措施</label><div style="color:#2b2f36;background:#f8fafc;border:1px solid #e8edf5;border-radius:4px;padding:8px 10px;min-height:36px;font-size:13px">'+row.action+'</div></div>'
++'</div>'
++'<div style="margin-top:10px"><label style="color:#98a2b3">成本/风险说明</label><div style="color:#2b2f36;background:#f8fafc;border:1px solid #e8edf5;border-radius:4px;padding:8px 10px;min-height:36px;font-size:13px">'+row.costRisk+'</div></div>'
 +'</div>';
+var sec2Title='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">明细列表</b></div>';
+var dtCols=['变更类型','产品编码','预计交货日期(修改前)','预计交货日期(修改后)','需求数量(修改前)','需求数量(修改后)','选配','配置说明','原单据号','版本号'];
+var sec2='<div class="card" style="margin-bottom:14px"><div class="tablebox" style="max-height:220px"><table><thead><tr>'+dtCols.map(function(c){return'<th>'+c+'</th>'}).join('')+'</tr></thead><tbody>';
+details.forEach(function(d){sec2+='<tr><td>'+d.crType+'</td><td>'+d.pCode+'</td><td>'+d.dlvBefore+'</td><td style="color:'+(d.dlvAfter!=='\u2014'&&d.dlvAfter!==d.dlvBefore?'#d92d20':'inherit')+'">'+d.dlvAfter+'</td><td>'+d.qtyBefore+'</td><td style="color:'+(d.qtyAfter!==d.qtyBefore?'#d92d20':'inherit')+'">'+d.qtyAfter+'</td><td>'+d.opt+'</td><td>'+d.cfg+'</td><td>'+d.origDoc+'</td><td>'+d.ver+'</td></tr>'});
+sec2+='</tbody></table></div></div>';
 var filesArr=(row.files||'').split(',').filter(Boolean);
-var filesListHtml=filesArr.length?filesArr.map(function(f,idx){
+var filesListHtml=filesArr.length?filesArr.map(function(f){
 return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #e8edf5;border-radius:6px;margin-bottom:6px;background:#fafbfc">'
 +'<span style="font-size:20px">&#128196;</span>'
 +'<div style="flex:1"><div style="color:#2b2f36;font-weight:500;font-size:13px">'+f+'</div><div style="color:#98a2b3;font-size:11px">'+(Math.floor(Math.random()*900+100))+' KB</div></div>'
 +'<a onclick="alert(\'预览: '+f+'\')" style="color:#2f6edb;cursor:pointer;font-size:12px;padding:4px 8px;border:1px solid #2f6edb;border-radius:4px">预览</a>'
 +'<a onclick="alert(\'下载: '+f+'\')" style="color:#fff;cursor:pointer;font-size:12px;padding:4px 8px;background:#2f6edb;border-radius:4px">下载</a>'
 +'</div>'}).join(''):'<div style="color:#98a2b3;padding:12px">暂无附件</div>';
-var sec3='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">附件管理</b></div>'
-+'<div class="card" style="margin-bottom:14px">'+filesListHtml+'</div>';
-// Right sidebar - timeline
-var tlHtml='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:10px"><b style="color:#173763;font-size:13px">审批记录</b></div>';
+var sec3Title='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">其他附件</b></div>';
+var sec3='<div class="card" style="margin-bottom:14px">'+filesListHtml+'</div>';
+var tab1Html=sec1Title+sec1+sec2Title+sec2+sec3Title+sec3;
+// Tab2: 流程信息
+var tlHtml='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">审批流转记录</b></div><div class="card">';
 mock.timeline.forEach(function(n,idx){
 var dc=dotColor[n.status]||'#98a2b3';
 var isLast=idx===mock.timeline.length-1;
@@ -596,34 +605,40 @@ tlHtml+='<div style="display:flex;gap:10px;position:relative;padding-bottom:'+(i
 +'<div style="color:#667085;font-size:12px">'+n.user+(n.time?' · '+n.time:'')+'</div>'
 +(n.opinion?'<div style="color:#2b2f36;font-size:12px;margin-top:4px;background:#f8fafc;padding:6px 8px;border-radius:4px;border-left:2px solid '+dc+'">'+n.opinion+'</div>':'')
 +'</div></div>'});
-// Comments tab
-var cmHtml='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:10px"><b style="color:#173763;font-size:13px">评论</b></div>';
-if(mock.comments.length){mock.comments.forEach(function(c){
-var initial=c.user.charAt(0);
-var avatarBg={'李':'#e8f1ff','张':'#e8f8ef','王':'#fff4e5','赵':'#ffecec'}[initial]||'#eef0f4';
-var avatarColor={'李':'#1d5fd1','张':'#138a4a','王':'#b86b00','赵':'#c42626'}[initial]||'#667085';
-cmHtml+='<div style="display:flex;gap:8px;margin-bottom:12px">'
-+'<div style="width:28px;height:28px;border-radius:50%;background:'+avatarBg+';color:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">'+initial+'</div>'
-+'<div style="flex:1"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="font-weight:600;color:#2b2f36;font-size:12px">'+c.user+'</span><span style="color:#98a2b3;font-size:11px">'+c.time+'</span></div>'
-+'<div style="color:#2b2f36;font-size:12px;background:#f8fafc;padding:8px 10px;border-radius:6px">'+c.content+'</div></div></div>'})}else{cmHtml+='<div style="color:#98a2b3;font-size:12px;padding:8px 0">暂无评论</div>'}
-cmHtml+='<div style="margin-top:10px"><textarea placeholder="输入评论..." rows="2" style="width:100%;border:1px solid #d0d5dd;border-radius:4px;padding:6px 8px;font-size:12px;resize:vertical"></textarea><button class="btn" style="margin-top:6px;height:26px;font-size:12px" onclick="alert(\'评论已提交\')">提交评论</button></div>';
-// Render
+tlHtml+='</div>';
+// Tab3: 流程图
+var flowHtml='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">审批流程图</b></div><div class="card"><div style="display:flex;align-items:center;gap:0;overflow-x:auto;padding:20px 10px">';
+mock.timeline.forEach(function(n,idx){
+var dc=dotColor[n.status]||'#98a2b3';
+var bgColor=dc==='#138a4a'?'#e8f8ef':dc==='#1d5fd1'?'#e8f1ff':dc==='#c42626'?'#ffecec':'#f2f4f7';
+var borderColor=dc;
+flowHtml+='<div style="display:flex;flex-direction:column;align-items:center;min-width:140px">'
++'<div style="width:130px;border:2px solid '+borderColor+';border-radius:8px;padding:10px 8px;text-align:center;background:'+bgColor+'">'
++'<div style="font-weight:700;font-size:12px;color:#2b2f36;margin-bottom:4px">'+n.node+'</div>'
++'<div style="font-size:11px;color:'+dc+';font-weight:600;margin-bottom:2px">'+n.status+'</div>'
++'<div style="font-size:11px;color:#667085">'+n.user+'</div>'
++(n.time?'<div style="font-size:10px;color:#98a2b3;margin-top:2px">'+n.time+'</div>':'')
++'</div></div>';
+if(idx<mock.timeline.length-1){flowHtml+='<div style="display:flex;align-items:center;padding:0 2px"><div style="width:30px;height:2px;background:#d0d5dd"></div><div style="width:0;height:0;border-left:6px solid #d0d5dd;border-top:4px solid transparent;border-bottom:4px solid transparent"></div></div>'}
+});
+flowHtml+='</div></div>';
+// Render with main tabs
 app.innerHTML='<div class="crumb">销售预测 / <b>需求变更记录</b> / 审批详情</div>'
-+'<div style="display:flex;gap:14px;align-items:flex-start">'
-+'<div style="flex:1;min-width:0">'+titleHtml+sec1+sec2+sec3+'</div>'
-+'<div style="width:300px;flex-shrink:0">'
-+'<div class="card" style="margin-bottom:12px">'
-+'<div id="crSideTabs" style="display:flex;border-bottom:1px solid #e8edf5;margin-bottom:12px">'
-+'<div class="tab on" data-stab="tl" style="padding:8px 14px;font-size:13px">审批记录</div>'
-+'<div class="tab" data-stab="cm" style="padding:8px 14px;font-size:13px">评论</div></div>'
-+'<div id="crSideTl">'+tlHtml+'</div>'
-+'<div id="crSideCm" style="display:none">'+cmHtml+'</div>'
-+'</div></div></div>';
-document.querySelectorAll('[data-stab]').forEach(function(t){t.onclick=function(){
-document.querySelectorAll('[data-stab]').forEach(function(x){x.classList.remove('on')});
++titleHtml
++'<div class="tabs" id="crMainTabs">'
++'<div class="tab on" data-mtab="content">审批内容</div>'
++'<div class="tab" data-mtab="flow">流程信息</div>'
++'<div class="tab" data-mtab="diagram">流程图</div></div>'
++'<div id="crTabContent">'+tab1Html+'</div>'
++'<div id="crTabFlow" style="display:none">'+tlHtml+'</div>'
++'<div id="crTabDiagram" style="display:none">'+flowHtml+'</div>';
+document.querySelectorAll('[data-mtab]').forEach(function(t){t.onclick=function(){
+document.querySelectorAll('[data-mtab]').forEach(function(x){x.classList.remove('on')});
 t.classList.add('on');
-document.getElementById('crSideTl').style.display=t.dataset.stab==='tl'?'':'none';
-document.getElementById('crSideCm').style.display=t.dataset.stab==='cm'?'':'none'}})}
+var v=t.dataset.mtab;
+document.getElementById('crTabContent').style.display=v==='content'?'':'none';
+document.getElementById('crTabFlow').style.display=v==='flow'?'':'none';
+document.getElementById('crTabDiagram').style.display=v==='diagram'?'':'none'}})}
 function backToChangeRecord(){changeRecordPage()}
 setPage('summary');
 </script>

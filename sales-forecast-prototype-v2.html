@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>销售预测系统 - 高保真原型</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+body{background:#f0f2f5;color:#333;font-size:13px}
+.header{height:56px;background:#1f3a68;color:#fff;display:flex;align-items:center;padding:0 24px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.header .logo{font-size:16px;font-weight:600}
+.header .user{margin-left:auto;font-size:12px;color:#cfd8e8}
+.layout{display:flex;height:calc(100vh - 56px)}
+.sidebar{width:220px;background:#fff;border-right:1px solid #e8e8e8;padding:12px 0;overflow-y:auto}
+.menu-item{padding:10px 20px;cursor:pointer;font-size:13px;color:#333}
+.menu-item.level1{font-weight:600;background:#fafbfc;color:#1f3a68}
+.menu-item.level2{padding-left:36px;color:#555}
+.menu-item.level2:hover{background:#f5f7fa;color:#1f3a68}
+.menu-item.active{background:#e6f0ff;color:#1f3a68;font-weight:600}
+.content{flex:1;padding:16px;overflow:auto}
+.breadcrumb{font-size:12px;color:#888;margin-bottom:12px}
+.breadcrumb span{color:#1f3a68;font-weight:600}
+.tabs{display:flex;border-bottom:1px solid #e8e8e8;margin-bottom:12px}
+.tab{padding:8px 16px;cursor:pointer;font-size:13px;color:#666;border-bottom:2px solid transparent}
+.tab.active{color:#1f3a68;border-bottom-color:#1f3a68;font-weight:600}
+.filter-bar{background:#fff;padding:12px;border-radius:4px;margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.filter-bar label{font-size:12px;color:#666;margin-right:4px}
+.filter-bar select,.filter-bar input{height:28px;padding:0 8px;border:1px solid #d9d9d9;border-radius:3px;font-size:12px;min-width:120px}
+.filter-bar button{height:28px;padding:0 16px;background:#1f3a68;color:#fff;border:none;border-radius:3px;cursor:pointer;font-size:12px}
+.filter-bar button.secondary{background:#fff;color:#1f3a68;border:1px solid #1f3a68}
+.table-wrap{background:#fff;border-radius:4px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:8px 10px;border-bottom:1px solid #f0f0f0;border-right:1px solid #f5f5f5;text-align:left;white-space:nowrap}
+th{background:#fafbfc;color:#555;font-weight:600;position:sticky;top:0}
+tr:hover td{background:#f9fbff}
+td.op a{color:#1f3a68;cursor:pointer;margin-right:8px;font-size:12px}
+td.op a:hover{text-decoration:underline}
+.group-header{background:#eef4ff !important;font-weight:600;color:#1f3a68}
+.tag{display:inline-block;padding:1px 6px;border-radius:2px;font-size:11px}
+.tag.blue{background:#e6f0ff;color:#1f3a68}
+.tag.green{background:#e6fff0;color:#138a4a}
+.tag.orange{background:#fff4e6;color:#c27a1a}
+.tag.red{background:#ffe6e6;color:#c42626}
+.tag.gray{background:#f0f0f0;color:#666}
+.footer{position:fixed;right:16px;bottom:8px;font-size:11px;color:#aaa}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">销售预测系统</div>
+  <div class="user">当前用户：张三 | 角色：销售预测专员</div>
+</div>
+<div class="layout">
+  <div class="sidebar">
+    <div class="menu-item level1">销售预测</div>
+    <div class="menu-item level2" data-page="history">历史销售预测</div>
+    <div class="menu-item level2" data-page="certain">确定性需求</div>
+    <div class="menu-item level2" data-page="exception">例外需求</div>
+    <div class="menu-item level2 active" data-page="summary">销售预测3+9需求汇总</div>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+<div class="footer">v1.0.0 高保真原型</div>
+<script>
+const pages={
+  history:{title:'历史销售预测',desc:'历史销售预测数据维护与查看（本页面占位）'},
+  certain:{title:'确定性需求',desc:'确定性需求数据维护与查看（本页面占位）'},
+  exception:{title:'例外需求',desc:'例外需求数据维护与查看（本页面占位）'},
+  summary:{title:'销售预测3+9需求汇总',desc:'按大区/国区/国家/明细维度汇总月度预测生效需求数量'}
+};
+const months=['M月','M+1','M+2','M+3','M+4','M+5','M+6','M+7','M+8','M+9','M+10','M+11','M+12'];
+const areaData=[
+  {areaCode:'A01',areaName:'华东大区',model:'A系列',pCode:'P1001',pName:'智能终端A1',bu:'电子事业部',buCode:'BU01'},
+  {areaCode:'A02',areaName:'华南大区',model:'B系列',pCode:'P2001',pName:'数据模块B2',bu:'通信事业部',buCode:'BU02'},
+  {areaCode:'A03',areaName:'华北大区',model:'C系列',pCode:'P3001',pName:'控制模组C3',bu:'电子事业部',buCode:'BU01'}
+];
+const zoneData=[
+  {zoneCode:'Z01',zoneName:'沪苏国区',areaCode:'A01',areaName:'华东大区',model:'A系列',pCode:'P1001',pName:'智能终端A1',bu:'电子事业部',buCode:'BU01'},
+  {zoneCode:'Z02',zoneName:'浙闽国区',areaCode:'A01',areaName:'华东大区',model:'A系列',pCode:'P1001',pName:'智能终端A1',bu:'电子事业部',buCode:'BU01'},
+  {zoneCode:'Z03',zoneName:'粤泰国区',areaCode:'A02',areaName:'华南大区',model:'B系列',pCode:'P2001',pName:'数据模块B2',bu:'通信事业部',buCode:'BU02'},
+  {zoneCode:'Z04',zoneName:'京津冀国区',areaCode:'A03',areaName:'华北大区',model:'C系列',pCode:'P3001',pName:'控制模组C3',bu:'电子事业部',buCode:'BU01'}
+];
+const countryData=[
+  {warCode:'W01',warName:'华东作战区',cCode:'CN',cName:'中国',zoneCode:'Z01',zoneName:'沪苏国区',areaCode:'A01',areaName:'华东大区',model:'A系列',pCode:'P1001',pName:'智能终端A1',bu:'电子事业部',buCode:'BU01'},
+  {warCode:'W02',warName:'苏南作战区',cCode:'CN',cName:'中国',zoneCode:'Z02',zoneName:'浙闽国区',areaCode:'A01',areaName:'华东大区',model:'A系列',pCode:'P1001',pName:'智能终端A1',bu:'电子事业部',buCode:'BU01'},
+  {warCode:'W03',warName:'珠三角作战区',cCode:'CN',cName:'中国',zoneCode:'Z03',zoneName:'粤泰国区',areaCode:'A02',areaName:'华南大区',model:'B系列',pCode:'P2001',pName:'数据模块B2',bu:'通信事业部',buCode:'BU02'},
+  {warCode:'W04',warName:'华北作战区',cCode:'CN',cName:'中国',zoneCode:'Z04',zoneName:'京津冀国区',areaCode:'A03',areaName:'华北大区',model:'C系列',pCode:'P3001',pName:'控制模组C3',bu:'电子事业部',buCode:'BU01'}
+];
+const detailData=[
+  {ver:'V1.0',doc:'EX-DN-0158',apNo:'AP-0085',src:'临时大单',dt:'临时大单',warCode:'W01',warName:'华东作战区',cCode:'CN',cName:'中国',model:'A系列',pCode:'P1001',pName:'智能终端A1',opt:'标准',cfg:'标配/256GB/白色',note:'客户追加促销订单',qtyB:0,qtyA:200,inDate:'2026-04-10',dlvDate:'2026-04-25',price:2800,amt:560000,ship:'海运计收',type:'订单型',pFrom:'上海港',pTo:'鹿特丹',trans:'海运',trade:'CIF',zoneCode:'Z01',zoneName:'沪苏国区',areaCode:'A01',areaName:'华东大区',bu:'电子事业部',buCode:'BU01',cstCode:'C10023',cstName:'上海电子科技',crtTime:'2026-03-01 09:00',crtBy:'张三',apTime:'2026-03-02 14:00',modBy:'张三',modTime:'2026-03-01 09:00',status:'已通过'},
+  {ver:'V1.1',doc:'EX-DN-0159',apNo:'—',src:'紧急调拨',dt:'紧急调拨',warCode:'W02',warName:'苏南作战区',cCode:'CN',cName:'中国',model:'B系列',pCode:'P2001',pName:'数据模块B2',opt:'高配',cfg:'高配/512GB/黑色',note:'紧急产线调拨',qtyB:50,qtyA:100,inDate:'2026-04-20',dlvDate:'2026-05-05',price:3200,amt:320000,ship:'空运计收',type:'储备型',pFrom:'浦东机场',pTo:'东京',trans:'空运',trade:'FOB',zoneCode:'Z02',zoneName:'浙闽国区',areaCode:'A01',areaName:'华东大区',bu:'电子事业部',buCode:'BU01',cstCode:'C10045',cstName:'江苏智能设备',crtTime:'2026-03-05 14:30',crtBy:'李四',apTime:'—',modBy:'李四',modTime:'2026-03-06 10:00',status:'审批中'},
+  {ver:'V1.0',doc:'EX-DN-0160',apNo:'—',src:'风险备货',dt:'风险备货',warCode:'W03',warName:'珠三角作战区',cCode:'CN',cName:'中国',model:'A系列',pCode:'P1001',pName:'智能终端A1',opt:'标准',cfg:'标配/256GB/白色',note:'供应链风险备货',qtyB:0,qtyA:200,inDate:'2026-04-01',dlvDate:'2026-04-15',price:2800,amt:560000,ship:'海运计收',type:'储备型',pFrom:'深圳港',pTo:'新加坡',trans:'海运',trade:'CIF',zoneCode:'Z03',zoneName:'粤泰国区',areaCode:'A02',areaName:'华南大区',bu:'通信事业部',buCode:'BU02',cstCode:'C10091',cstName:'广州供应链',crtTime:'2026-03-15 16:30',crtBy:'李四',apTime:'—',modBy:'李四',modTime:'2026-03-15 16:30',status:'草稿'},
+  {ver:'V1.0',doc:'EX-DN-0161',apNo:'AP-0088',src:'临时大单',dt:'临时大单',warCode:'W04',warName:'华北作战区',cCode:'CN',cName:'中国',model:'C系列',pCode:'P3001',pName:'控制模组C3',opt:'标准',cfg:'标配/128GB',note:'展会临时订单',qtyB:30,qtyA:60,inDate:'2026-05-20',dlvDate:'2026-06-05',price:1800,amt:108000,ship:'陆运计收',type:'订单型',pFrom:'天津港',pTo:'—',trans:'陆运',trade:'—',zoneCode:'Z04',zoneName:'京津冀国区',areaCode:'A03',areaName:'华北大区',bu:'电子事业部',buCode:'BU01',cstCode:'C10078',cstName:'北京科技',crtTime:'2026-03-10 11:00',crtBy:'王五',apTime:'2026-03-13 15:00',modBy:'王五',modTime:'2026-03-12 09:00',status:'已驳回'}
+];
+function rndQty(){return Math.floor(Math.random()*500)+50}
+function monthCells(){return months.map(()=>`<td>${rndQty()} / <b>${rndQty()}</b></td>`).join('')}
+function monthHeader(){return `<th colspan="26" style="text-align:center;background:#e6f0ff;color:#1f3a68">月度预测生效需求数量（修改前 / 修改后）</th>`}
+function monthSub(){return months.map(m=>`<th>${m}<br><span style="font-weight:normal;color:#888">前/后</span></th>`).join('')}
+function statusTag(s){const m={'已通过':'green','审批中':'blue','草稿':'gray','已驳回':'red','已撤回':'orange','已废弃':'gray'};return `<span class="tag ${m[s]||'gray'}">${s}</span>`}
+
+function renderSummary(){
+  let h=`<div class="breadcrumb">销售预测 / <span>销售预测3+9需求汇总</span></div>`;
+  h+=`<div class="tabs">
+    <div class="tab active" data-tab="area">大区维度汇总表</div>
+    <div class="tab" data-tab="zone">国区维度汇总表</div>
+    <div class="tab" data-tab="country">国家维度汇总表</div>
+    <div class="tab" data-tab="detail">明细表</div>
+  </div>`;
+  h+=`<div class="filter-bar">
+    <label>事业部</label><select><option>全部</option><option>电子事业部</option><option>通信事业部</option></select>
+    <label>大区</label><select><option>全部</option>${areaData.map(a=>`<option>${a.areaName}</option>`).join('')}</select>
+    <label>国区</label><select><option>全部</option>${zoneData.map(z=>`<option>${z.zoneName}</option>`).join('')}</select>
+    <label>机型</label><select><option>全部</option><option>A系列</option><option>B系列</option><option>C系列</option></select>
+    <label>月份</label><select>${months.map(m=>`<option>${m}</option>`).join('')}</select>
+    <button>查询</button><button class="secondary">重置</button><button class="secondary">导出</button>
+  </div>`;
+  h+=`<div id="tabBody"></div>`;
+  document.getElementById('content').innerHTML=h;
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
+  switchTab('area');
+}
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  const body=document.getElementById('tabBody');
+  if(tab==='area')body.innerHTML=renderAreaTable();
+  else if(tab==='zone')body.innerHTML=renderZoneTable();
+  else if(tab==='country')body.innerHTML=renderCountryTable();
+  else body.innerHTML=renderDetailTable();
+}
+function renderAreaTable(){
+  let h=`<div class="table-wrap"><table><thead><tr>
+    <th>大区编码</th><th>大区名称</th><th>机型</th><th>产品编码</th><th>产品名称</th>
+    <th colspan="26" style="text-align:center;background:#e6f0ff;color:#1f3a68">月度预测生效需求数量（修改前 / 修改后）</th>
+    <th>事业部名称</th><th>事业部编码</th><th>操作</th>
+  </tr><tr><th colspan="5"></th>${monthSub()}<th colspan="3"></th></tr></thead><tbody>`;
+  areaData.forEach(a=>{
+    h+=`<tr><td>${a.areaCode}</td><td>${a.areaName}</td><td>${a.model}</td><td>${a.pCode}</td><td>${a.pName}</td>${monthCells()}<td>${a.bu}</td><td>${a.buCode}</td><td class="op"><a onclick="goZone('${a.areaCode}')">查看详情</a></td></tr>`;
+  });
+  h+=`</tbody></table></div>`;
+  return h;
+}
+function renderZoneTable(){
+  let h=`<div class="table-wrap"><table><thead><tr>
+    <th>国区编码</th><th>国区名称</th><th>机型</th><th>产品编码</th><th>产品名称</th>
+    <th colspan="26" style="text-align:center;background:#e6f0ff;color:#1f3a68">月度预测生效需求数量（修改前 / 修改后）</th>
+    <th>大区编码</th><th>大区名称</th><th>事业部名称</th><th>事业部编码</th><th>操作</th>
+  </tr><tr><th colspan="5"></th>${monthSub()}<th colspan="4"></th></tr></thead><tbody>`;
+  zoneData.forEach(z=>{
+    h+=`<tr><td>${z.zoneCode}</td><td>${z.zoneName}</td><td>${z.model}</td><td>${z.pCode}</td><td>${z.pName}</td>${monthCells()}<td>${z.areaCode}</td><td>${z.areaName}</td><td>${z.bu}</td><td>${z.buCode}</td><td class="op"><a onclick="goCountry('${z.zoneCode}')">查看详情</a></td></tr>`;
+  });
+  h+=`</tbody></table></div>`;
+  return h;
+}
+function renderCountryTable(){
+  let h=`<div class="table-wrap"><table><thead><tr>
+    <th>作战区域编码</th><th>作战区域名称</th><th>国家编码</th><th>国家名称（目的国）</th><th>机型</th><th>产品编码</th><th>产品名称</th>
+    <th colspan="26" style="text-align:center;background:#e6f0ff;color:#1f3a68">月度预测生效需求数量（修改前 / 修改后）</th>
+    <th>国区编码</th><th>国区名称</th><th>大区编码</th><th>大区名称</th><th>事业部名称</th><th>事业部编码</th><th>操作</th>
+  </tr><tr><th colspan="7"></th>${monthSub()}<th colspan="6"></th></tr></thead><tbody>`;
+  countryData.forEach(c=>{
+    h+=`<tr><td>${c.warCode}</td><td>${c.warName}</td><td>${c.cCode}</td><td>${c.cName}</td><td>${c.model}</td><td>${c.pCode}</td><td>${c.pName}</td>${monthCells()}<td>${c.zoneCode}</td><td>${c.zoneName}</td><td>${c.areaCode}</td><td>${c.areaName}</td><td>${c.bu}</td><td>${c.buCode}</td><td class="op"><a onclick="goDetail('${c.cCode}')">查看详情</a></td></tr>`;
+  });
+  h+=`</tbody></table></div>`;
+  return h;
+}
+function renderDetailTable(){
+  let h=`<div class="table-wrap"><table><thead><tr>
+    <th>版本号</th><th>单据号</th><th>审批单据号</th><th>数据来源</th><th>需求类型</th>
+    <th>作战区域编码</th><th>作战区域名称</th><th>国家编码</th><th>国家名称（目的国）</th><th>机型</th><th>产品编码</th><th>产品名称</th>
+    <th>选配</th><th>配置说明</th><th>需求备注</th>
+    <th>生效需求数量（修改前）</th><th>生效需求数量（修改后）</th>
+    <th>预计入库日期</th><th>要求交货日期</th><th>单价</th><th>总金额</th><th>发运计收</th><th>订单型/储备型</th>
+    <th>港口（起运港）</th><th>港口（目的港）</th><th>运输方式</th><th>贸易术语</th>
+    <th>国区编码</th><th>国区名称</th><th>大区编码</th><th>大区名称</th><th>事业部名称</th><th>事业部编码</th>
+    <th>客户编码</th><th>客户名称</th><th>创建时间</th><th>创建人</th><th>审批通过时间</th><th>修改人</th><th>修改时间</th><th>审批状态</th><th>操作</th>
+  </tr></thead><tbody>`;
+  detailData.forEach(d=>{
+    h+=`<tr>
+      <td>${d.ver}</td><td>${d.doc}</td><td>${d.apNo}</td><td>${d.src}</td><td>${d.dt}</td>
+      <td>${d.warCode}</td><td>${d.warName}</td><td>${d.cCode}</td><td>${d.cName}</td><td>${d.model}</td><td>${d.pCode}</td><td>${d.pName}</td>
+      <td>${d.opt}</td><td>${d.cfg}</td><td>${d.note}</td>
+      <td>${d.qtyB}</td><td><b>${d.qtyA}</b></td>
+      <td>${d.inDate}</td><td>${d.dlvDate}</td><td>${d.price}</td><td>${d.amt}</td><td>${d.ship}</td><td>${d.type}</td>
+      <td>${d.pFrom}</td><td>${d.pTo}</td><td>${d.trans}</td><td>${d.trade}</td>
+      <td>${d.zoneCode}</td><td>${d.zoneName}</td><td>${d.areaCode}</td><td>${d.areaName}</td><td>${d.bu}</td><td>${d.buCode}</td>
+      <td>${d.cstCode}</td><td>${d.cstName}</td><td>${d.crtTime}</td><td>${d.crtBy}</td><td>${d.apTime}</td><td>${d.modBy}</td><td>${d.modTime}</td><td>${statusTag(d.status)}</td>
+      <td class="op"><a>编辑</a><a>删除</a></td>
+    </tr>`;
+  });
+  h+=`</tbody></table></div>`;
+  return h;
+}
+function goZone(areaCode){switchTab('zone')}
+function goCountry(zoneCode){switchTab('country')}
+function goDetail(cCode){switchTab('detail')}
+function renderPlaceholder(key){
+  const p=pages[key];
+  document.getElementById('content').innerHTML=`
+    <div class="breadcrumb">销售预测 / <span>${p.title}</span></div>
+    <div style="background:#fff;padding:24px;border-radius:4px">
+      <h3 style="color:#1f3a68;margin-bottom:8px">${p.title}</h3>
+      <p style="color:#666">${p.desc}</p>
+    </div>`;
+}
+document.querySelectorAll('.menu-item.level2').forEach(m=>{
+  m.onclick=()=>{
+    document.querySelectorAll('.menu-item.level2').forEach(x=>x.classList.remove('active'));
+    m.classList.add('active');
+    const k=m.dataset.page;
+    if(k==='summary')renderSummary();
+    else renderPlaceholder(k);
+  };
+});
+renderSummary();
+</script>
+</body>
+</html>
