@@ -513,7 +513,56 @@ function crGetSelected(){var cbs=document.querySelectorAll('.crRowCb:checked');r
 function crToggleAll(el){var cbs=document.querySelectorAll('.crRowCb');cbs.forEach(function(cb){cb.checked=el.checked})}
 function crDoWithdraw(){var idxs=crGetSelected();if(!idxs.length){alert('请先勾选需要撤回的记录！');return}var canWithdraw=idxs.filter(function(i){return changeRecordRows[i].approvalStatus==='审批中'});if(!canWithdraw.length){alert('所选记录中没有可撤回的数据（仅审批中状态可撤回）！');return}canWithdraw.forEach(function(i){changeRecordRows[i].approvalStatus='草稿'});alert('已撤回 '+canWithdraw.length+' 条记录！');crRenderTable(changeRecordRows)}
 function crDoDiscard(){var idxs=crGetSelected();if(!idxs.length){alert('请先勾选需要废弃的记录！');return}var canDiscard=idxs.filter(function(i){return changeRecordRows[i].approvalStatus==='草稿'||changeRecordRows[i].approvalStatus==='已驳回'});if(!canDiscard.length){alert('所选记录中没有可废弃的数据（仅草稿或已驳回状态可废弃）！');return}if(!confirm('确认废弃选中的 '+canDiscard.length+' 条记录？废弃后不可恢复！'))return;canDiscard.forEach(function(i){changeRecordRows[i].approvalStatus='已废弃'});alert('已废弃 '+canDiscard.length+' 条记录！');crRenderTable(changeRecordRows)}
-function crDoSubmitApproval(){var idxs=crGetSelected();if(!idxs.length){alert('请先勾选需要提交审批的记录！');return}var canSubmit=idxs.filter(function(i){return changeRecordRows[i].approvalStatus==='草稿'});if(!canSubmit.length){alert('所选记录中没有可提交审批的数据（仅草稿状态可提交）！');return}canSubmit.forEach(function(i){changeRecordRows[i].approvalStatus='审批中';changeRecordRows[i].crApproval='CR-AP-'+String(Math.floor(Math.random()*900+100))});alert('已提交 '+canSubmit.length+' 条记录至审批流程！');crRenderTable(changeRecordRows)}
+function crDoSubmitApproval(){var idxs=crGetSelected();if(!idxs.length){alert('请先勾选需要提交审批的记录！');return}var canSubmit=idxs.filter(function(i){return changeRecordRows[i].approvalStatus==='草稿'});if(!canSubmit.length){alert('所选记录中没有可提交审批的数据（仅草稿状态可提交）！');return}
+var apNo='CR-AP-'+String(Math.floor(Math.random()*900+100));
+var firstRow=changeRecordRows[canSubmit[0]];
+var now=new Date();var applyTime=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+// Section 1: Basic Info
+var sec1='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">基本信息</b></div>'
++'<div class="formgrid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">'
++'<div class="field"><label>变更审批单号</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">'+apNo+'</div></div>'
++'<div class="field"><label>数据来源</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">'+firstRow.dt+'</div></div>'
++'<div class="field"><label>申请人姓名</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">当前用户</div></div>'
++'<div class="field"><label>申请时间</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">'+applyTime+'</div></div>'
++'<div class="field" style="grid-column:span 2"><label>应对措施</label><textarea id="crApAction" style="width:100%;height:50px;border:1px solid #d0d5dd;border-radius:4px;padding:6px 8px;font-size:12px;resize:vertical;font-family:inherit" placeholder="请输入应对措施">'+firstRow.action+'</textarea></div>'
++'<div class="field"><label>风险成本说明</label><textarea id="crApCost" style="width:100%;height:50px;border:1px solid #d0d5dd;border-radius:4px;padding:6px 8px;font-size:12px;resize:vertical;font-family:inherit" placeholder="请输入风险成本说明">'+firstRow.costRisk+'</textarea></div>'
++'</div>';
+// Section 2: Change Reason
+var sec2='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">变更原因</b><span style="color:#d92d20;margin-left:4px">*</span></div>'
++'<div style="margin-bottom:16px"><textarea id="crApReason" style="width:100%;height:70px;border:1px solid #d0d5dd;border-radius:4px;padding:8px;font-size:12px;resize:vertical;font-family:inherit" placeholder="请输入变更原因..." required>'+firstRow.crReason+'</textarea></div>';
+// Section 3: List Data
+var dtCols=['变更类型','产品编码','预计交货日期(修改前)','预计交货日期(修改后)','需求数量(修改前)','需求数量(修改后)','选配','配置说明','原单据号','版本号'];
+var sec3='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">列表数据</b></div>'
++'<div class="tablebox" style="max-height:180px;margin-bottom:8px"><table><thead><tr>'+dtCols.map(function(c){return'<th>'+c+'</th>'}).join('')+'</tr></thead><tbody>';
+canSubmit.forEach(function(idx){var r=changeRecordRows[idx];var det=crDetailMock[r.crNo];if(det){det.forEach(function(d){sec3+='<tr><td>'+d.crType+'</td><td>'+d.pCode+'</td><td>'+d.dlvBefore+'</td><td style="color:'+(d.dlvAfter!=='\u2014'&&d.dlvAfter!==d.dlvBefore?'#d92d20':'inherit')+'">'+d.dlvAfter+'</td><td>'+d.qtyBefore+'</td><td style="color:'+(d.qtyAfter!==d.qtyBefore?'#d92d20':'inherit')+'">'+d.qtyAfter+'</td><td>'+d.opt+'</td><td>'+d.cfg+'</td><td>'+d.origDoc+'</td><td>'+d.ver+'</td></tr>'})}else{sec3+='<tr><td>'+r.crType+'</td><td>'+r.pCode+'</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>\u2014</td><td>'+r.origDoc+'</td><td>\u2014</td></tr>'}});
+sec3+='</tbody></table></div>'
++'<div style="display:flex;justify-content:flex-end;gap:12px;font-size:12px;color:#667085;margin-bottom:16px"><span>共 '+canSubmit.length+' 条</span><span>10条/页</span><button class="btn ghost" style="height:24px;font-size:11px;padding:0 8px" disabled>上一页</button><button class="btn ghost" style="height:24px;font-size:11px;padding:0 8px" disabled>下一页</button></div>';
+// Section 4: Approver Info
+var sec4='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">审批人信息</b></div>'
++'<div class="formgrid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">'
++'<div class="field"><label class="req">一级审批人</label><select id="crAp1"><option value="">请选择</option><option>王总 (A10002)</option><option>李总 (A10003)</option><option>张经理 (A10008)</option><option>李经理 (A10009)</option></select></div>'
++'<div class="field"><label>二级审批人</label><select id="crAp2"><option value="">请选择（可选）</option><option>王总 (A10002)</option><option>李总 (A10003)</option><option>张经理 (A10008)</option><option>李经理 (A10009)</option></select></div>'
++'<div class="field"><label>三级审批人</label><select id="crAp3"><option value="">请选择（可选）</option><option>王总 (A10002)</option><option>李总 (A10003)</option><option>张经理 (A10008)</option><option>李经理 (A10009)</option></select></div>'
++'</div>';
+// Section 5: Attachments
+var sec5='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">附件信息</b></div>'
++'<div style="margin-bottom:16px"><button class="btn" style="margin-bottom:8px" onclick="alert(\'选择文件...\')">+ 添加附件</button>'
++'<div class="tablebox" style="max-height:120px"><table><thead><tr><th style="width:50%">文件名称</th><th>文件ID</th><th style="width:120px">操作</th></tr></thead><tbody>'
++'<tr><td colspan="3" style="text-align:center;color:#98a2b3;padding:16px">暂无附件，请点击「添加附件」上传</td></tr>'
++'</tbody></table></div></div>';
+// Open modal
+var body=sec1+sec2+sec3+sec4+sec5;
+var foot='<button class="btn ghost" onclick="closeModal()" style="margin-right:8px">取消</button><button class="btn" onclick="crDoLaunchApproval(\''+apNo+'\','+JSON.stringify(canSubmit)+')">发起审批</button>';
+openModal('提交变更审批（'+apNo+'）',body,foot)}
+function crDoLaunchApproval(apNo,idxsArr){
+var reason=document.getElementById('crApReason').value.trim();
+if(!reason){alert('请填写变更原因！');return}
+var ap1=document.getElementById('crAp1').value;
+if(!ap1){alert('请选择一级审批人！');return}
+idxsArr.forEach(function(i){changeRecordRows[i].approvalStatus='审批中';changeRecordRows[i].crApproval=apNo});
+closeModal();
+alert('审批已发起！\n审批单号：'+apNo+'\n已提交 '+idxsArr.length+' 条记录');
+crRenderTable(changeRecordRows)}
 function crNavigateToDetail(origDoc,pCode){if(!origDoc||origDoc==='\u2014'||origDoc==='—'){alert('该记录无关联原单号，无法跳转');return}var isException=origDoc.indexOf('FX-AP')===0;if(isException){setPage('exception');alert('跳转至例外需求页面\n原单号：'+origDoc+'\n产品编码：'+pCode+'\n（实际环境中将筛选并定位到对应数据行）')}else{setPage('summary');alert('跳转至销售预测3+9需求汇总页面\n原单号：'+origDoc+'\n产品编码：'+pCode+'\n（实际环境中将筛选并定位到对应数据行）')}}
 // === 审批详情 Mock 数据 ===
 var crDetailMock={
