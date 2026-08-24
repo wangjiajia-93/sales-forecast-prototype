@@ -142,6 +142,71 @@ function qMonth(label, opts2) {
 }
 // 日期范围选择器
 // 明细表查询条件（6列栅格布局，20个字段）
+// 多选下拉组件（带Tag展示和清空功能）
+function qMultiSelect(label, options, id) {
+  var optsHtml = options.map(function(o) {
+    return '<label style="display:flex;align-items:center;gap:6px;padding:4px 8px;cursor:pointer"><input type="checkbox" value="' + o + '" onchange="updateMultiSelectTags(\'' + id + '\')">' + o + '</label>';
+  }).join('');
+  return '<div class="field" style="position:relative"><label>' + label + '</label>'
+    + '<div id="' + id + '" class="multi-select" style="width:100%;min-height:34px;border:1px solid #d0d5dd;border-radius:4px;padding:4px 28px 4px 8px;cursor:pointer;background:#fff;position:relative" onclick="toggleMultiSelect(\'' + id + '\')">'
+    + '<span class="multi-tags" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;min-height:24px"></span>'
+    + '<span class="multi-placeholder" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#98a2b3;pointer-events:none">请选择</span>'
+    + '<span class="multi-clear" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#98a2b3;cursor:pointer;font-size:14px;display:none" onclick="event.stopPropagation();clearMultiSelect(\'' + id + '\')">&times;</span>'
+    + '</div>'
+    + '<div class="multi-dropdown" style="display:none;position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #d0d5dd;border-radius:4px;max-height:200px;overflow-y:auto;z-index:100;margin-top:2px;box-shadow:0 4px 8px rgba(0,0,0,0.1)">' + optsHtml + '</div>'
+    + '<input type="hidden" class="multi-value" id="' + id + '_value">'
+    + '</div>';
+}
+function toggleMultiSelect(id) {
+  var el = document.getElementById(id);
+  var dropdown = el.nextElementSibling;
+  var isOpen = dropdown.style.display === 'block';
+  document.querySelectorAll('.multi-dropdown').forEach(function(d) { d.style.display = 'none'; });
+  if (!isOpen) dropdown.style.display = 'block';
+}
+function updateMultiSelectTags(id) {
+  var el = document.getElementById(id);
+  var dropdown = el.nextElementSibling;
+  var checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+  var selected = [];
+  checkboxes.forEach(function(cb) { if (cb.checked) selected.push(cb.value); });
+  var tagsEl = el.querySelector('.multi-tags');
+  var placeholder = el.querySelector('.multi-placeholder');
+  var clearBtn = el.querySelector('.multi-clear');
+  var hiddenInput = document.getElementById(id + '_value');
+  if (selected.length === 0) {
+    tagsEl.innerHTML = '';
+    placeholder.style.display = '';
+    clearBtn.style.display = 'none';
+    hiddenInput.value = '';
+  } else {
+    tagsEl.innerHTML = selected.map(function(v) {
+      return '<span style="background:#eff4ff;color:#2f6edb;padding:2px 6px;border-radius:3px;font-size:12px;display:flex;align-items:center;gap:4px">' + v + '<span style="cursor:pointer;font-size:14px" onclick="event.stopPropagation();removeMultiSelectTag(\'' + id + '\',\'' + v + '\')">&times;</span></span>';
+    }).join('');
+    placeholder.style.display = 'none';
+    clearBtn.style.display = '';
+    hiddenInput.value = selected.join(',');
+  }
+}
+function removeMultiSelectTag(id, value) {
+  var el = document.getElementById(id);
+  var dropdown = el.nextElementSibling;
+  var checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(function(cb) { if (cb.value === value) cb.checked = false; });
+  updateMultiSelectTags(id);
+}
+function clearMultiSelect(id) {
+  var el = document.getElementById(id);
+  var dropdown = el.nextElementSibling;
+  var checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach(function(cb) { cb.checked = false; });
+  updateMultiSelectTags(id);
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.multi-select') && !e.target.closest('.multi-dropdown')) {
+    document.querySelectorAll('.multi-dropdown').forEach(function(d) { d.style.display = 'none'; });
+  }
+});
 function summaryDetailFilters() {
   let area = ['A01 华东大区', 'A02 华南大区', 'A03 华北大区'];
   let prod = ['P1001 智能终端A1', 'P2001 数据模块B2', 'P3001 控制模组C3'];
@@ -149,6 +214,8 @@ function summaryDetailFilters() {
   let country = ['CN 中国', 'JP 日本', 'SG 新加坡', 'TH 泰国'];
   let war = ['W01 华东作战区', 'W02 苏南作战区', 'W03 珠三角作战区', 'W04 华北作战区'];
   let bu = ['BU01 电子事业部', 'BU02 通信事业部'];
+  let changeType = ['新增', '修改', '删除', '替换'];
+  let changeStatus = ['无变更', '变更中', '已变更', '已驳回'];
   let r30 = recent30Days();
 
   let fields = [
@@ -171,7 +238,9 @@ function summaryDetailFilters() {
     qInput('港口（起运港）', { placeholder: '请输入起运港' }),
     qInput('港口（目的港）', { placeholder: '请输入目的港' }),
     qSelect('运输方式', ['海运', '陆运', '空运']),
-    qSelect('贸易术语', ['CIF', 'FOB', 'EXW', '暂无'])
+    qSelect('贸易术语', ['CIF', 'FOB', 'EXW', '暂无']),
+    qMultiSelect('变更类型', changeType, 'sumChangeType'),
+    qMultiSelect('变更状态', changeStatus, 'sumChangeStatus')
   ];
 
   return '<div class="card"><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-items:end">' + fields.join('') + '<div class="field"><label>&nbsp;</label><button class="btn" onclick="summaryQuery(\'detail\')">查询</button><button class="btn ghost" style="margin-left:8px" onclick="summaryReset(\'detail\')">重置</button></div></div><div class="hint">下拉条件支持按编码/名称模糊查询和精准查询，支持单选/多选；查询时已填条件之间为 AND 关系。必填字段标 * 号。</div></div>';
@@ -237,7 +306,7 @@ function summaryFilters(type) {
 
 
 function summaryQuery(type){alert('已按当前填写条件组合查询，已填条件之间为 AND 关系。')}
-function summaryReset(type){document.querySelectorAll('#sumBody select').forEach(s=>[...s.options].forEach(o=>o.selected=false));document.querySelectorAll('#sumBody input').forEach(i=>i.value='');alert('已清空查询条件，并自动重新查询全量数据，分页重置为第1页。')}
+function summaryReset(type){document.querySelectorAll('#sumBody select').forEach(s=>[...s.options].forEach(o=>o.selected=false));document.querySelectorAll('#sumBody input').forEach(i=>i.value='');clearMultiSelect('sumChangeType');clearMultiSelect('sumChangeStatus');alert('已清空查询条件，并自动重新查询全量数据，分页重置为第1页。')}
 function updateDemandTypeOptions(){let map={'例外需求':['风险备货','MTS备货','退市产品需求提交','新品上市需求提交','其他类型'],'历史销售预测':['历史销售预测'],'确定性需求':['商机','线索','订单','合同'],'先行指标预测':['先行指标预测']};let src=[...document.getElementById('srcFilter').selectedOptions].map(o=>o.value);let list=src.length?[...new Set(src.flatMap(s=>map[s]||[]))]:Object.values(map).flat();document.getElementById('typeFilter').innerHTML=list.map(x=>`<option>${x}</option>`).join('')}
 function summary(){app.innerHTML=`<div class="crumb">销售预测 / <b>销售预测3+9需求汇总</b></div><div class="tabs"><div class="tab on" data-tab="detail">明细表</div><div class="tab" data-tab="country">国家维度汇总表</div><div class="tab" data-tab="zone">国区维度汇总表</div><div class="tab" data-tab="area">大区维度汇总表</div></div><div id="sumBody"></div>`;document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>sumTab(t.dataset.tab));sumTab('detail')}
 function sumTab(t){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.dataset.tab===t));let b=document.getElementById('sumBody');if(t==='area')b.innerHTML=summaryFilters('area')+areaTable();if(t==='zone')b.innerHTML=summaryFilters('zone')+zoneTable();if(t==='country')b.innerHTML=summaryFilters('country')+countryTable();if(t==='detail')b.innerHTML=summaryFilters('detail')+detailToolbar()+detailTable()}
@@ -413,7 +482,7 @@ function exceptionSummaryFilters() {
   return '<div class="card"><div style="display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px;align-items:end">' + fields.join('') + '<div class="field"><label>&nbsp;</label><button class="btn" onclick="summaryQuery(\'exSum\')">查询</button><button class="btn ghost" style="margin-left:8px" onclick="summaryReset(\'exSum\')">重置</button></div></div><div class="hint">下拉条件支持编码+名称模糊搜索；计划年月必填，默认当前月份；大区/国区/国家默认取当前用户所属。多条件之间为 AND 关系。</div></div>';
 }
 
-// 例外需求明细表查询条件（19个字段）
+// 例外需求明细表查询条件（21个字段）
 function exceptionFilters() {
   let war = ['W01 华东作战区', 'W02 苏南作战区', 'W03 珠三角作战区', 'W04 华北作战区'];
   let bu = ['BU01 电子事业部', 'BU02 通信事业部'];
@@ -425,6 +494,8 @@ function exceptionFilters() {
   let ports = ['上海港', '深圳港', '天津港', '青岛港', '宁波港', '广州港', '厦门港', '大连港'];
   let trans = ['海运', '陆运'];
   let trade = ['暂无', '内贸', 'CFR', 'CIF', 'CIP', 'DAF', 'DAP', 'DDP', 'EXW', 'FCA', 'FOB', 'UN'];
+  let changeType = ['新增', '修改', '删除', '替换'];
+  let changeStatus = ['无变更', '变更中', '已变更', '已驳回'];
   let r30 = recent30Days();
 
   let fields = [
@@ -449,15 +520,17 @@ function exceptionFilters() {
     qSelect('港口（目的港）', ports),
     qSelect('运输方式', trans),
     qSelect('贸易术语', trade),
-    // 第4行：创建时间（合并显示）
-    qDateRange('创建时间', { defStart: r30.start, defEnd: r30.end, merged: true })
+    // 第4行：创建时间、变更类型、变更状态
+    qDateRange('创建时间', { defStart: r30.start, defEnd: r30.end, merged: true }),
+    qMultiSelect('变更类型', changeType, 'exChangeType'),
+    qMultiSelect('变更状态', changeStatus, 'exChangeStatus')
   ];
 
   return '<div class="card" id="exFilterCard"><div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-items:end">' + fields.join('') + '<div class="field"><label>&nbsp;</label><button class="btn" onclick="exceptionQuery()">查询</button><button class="btn ghost" style="margin-left:8px" onclick="exceptionReset()">重置</button></div></div><div class="hint">单据号/审批单号/产品/机型为文本框；需求类型/作战区域为单选下拉；发运计收/订单型/港口/运输方式/贸易术语为多选下拉；创建时间/预计入库日期为日期范围；多条件之间为 AND 关系。</div></div>';
 }
 
 function exceptionQuery(){alert('已按当前填写条件组合查询，多条件之间为 AND 关系，列表已刷新。')}
-function exceptionReset(){document.querySelectorAll('#exFilterCard input').forEach(x=>x.value='');document.querySelectorAll('#exFilterCard select').forEach(s=>[...s.options].forEach(o=>o.selected=false));alert('已清空查询条件，并重新查询全量数据。')}
+function exceptionReset(){document.querySelectorAll('#exFilterCard input').forEach(x=>x.value='');document.querySelectorAll('#exFilterCard select').forEach(s=>[...s.options].forEach(o=>o.selected=false));clearMultiSelect('exChangeType');clearMultiSelect('exChangeStatus');alert('已清空查询条件，并重新查询全量数据。')}
 let exEditCtx=null;
 function exRowToProd(r){return{changeType:r.changeType||'',pCode:r.pCode,pName:r.pName,model:r.model,opt:r.opt,cfg:r.cfg,note:r.note,qty:r.qtyA,inDate:r.inDate,dlvDate:r.dlvDate,ship:(r.ship==='是'||r.ship==='否')?r.ship:'是',type:r.type,pFrom:r.pFrom,pTo:r.pTo,trans:(r.trans==='海运'||r.trans==='陆运')?r.trans:'海运',trade:['暂无','内贸','CFR','CIF','CIP','DAF','DAP','DDP','EXW','FCA','FOB','UN'].indexOf(r.trade)>=0?r.trade:'暂无',custCode:r.custCode,custName:r.custName,price:r.price,amt:r.amt,buCode:r.buCode,bu:r.bu}}
 function exEditAmtField(d,ro){var show=d.dt==='风险备货';var val=d.totalAmt||'';var ch=val?numToChinese(val):'';if(ro)return'<div class="field" style="'+(show?'':'display:none')+'"><label class="req">总金额合计</label><input value="'+val+'" disabled><div style="color:#173763;font-size:12px;margin-top:2px">'+ch+'</div></div>';return'<div id="exTotalAmtField" class="field" style="'+(show?'':'display:none')+'"><label class="req">总金额合计</label><div style="position:relative;display:flex;align-items:center"><input id="exTotalAmt" type="text" value="'+val+'" placeholder="请输入大于0的金额" style="width:100%;padding-right:28px" oninput="validateExTotalAmtInput(this);updateAmtChinese()" onblur="validateExTotalAmt(this)"><span style="position:absolute;right:10px;color:#667085;pointer-events:none;font-size:14px">元</span></div><div id="exTotalAmtChinese" style="color:#173763;font-size:12px;margin-top:2px;min-height:16px">'+ch+'</div><div id="exTotalAmtErr" style="color:#f04438;font-size:12px;display:none;margin-top:4px"></div></div>'}
