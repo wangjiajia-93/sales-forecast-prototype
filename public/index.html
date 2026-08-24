@@ -460,7 +460,7 @@ html+='<tr>'
 +'<td>'+r.applicant+'</td>'
 +'<td>'+r.applyTime+'</td>'
 +'<td>'+r.origApproval+'</td>'
-+'<td>'+r.crApproval+'</td>'
++'<td>'+(r.crApproval&&r.crApproval!=='\u2014'?'<a onclick="openCrApproval(\''+r.crNo+'\')" style="color:#2f6edb;cursor:pointer;font-weight:700">'+r.crApproval+'</a>':r.crApproval)+'</td>'
 +'<td><span class="tag '+statusCls+'">'+r.approvalStatus+'</span></td>'
 +'<td style="max-width:160px">'+filesHtml+'</td>'
 +'</tr>'});
@@ -502,6 +502,129 @@ var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
 var link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=filename;link.click();
 btn.disabled=false;btn.textContent=origText;btn.style.opacity='1';
 alert('导出成功！文件名：'+filename)},800)}
+// === 审批详情 Mock 数据 ===
+var crApprovalMock={
+'CR-2026-001':{timeline:[
+{node:'提交申请',user:'李四',status:'已通过',opinion:'提交需求变更申请',time:'2026-08-15 10:30'},
+{node:'一级审批',user:'张经理',status:'已通过',opinion:'同意，已确认市场计划提前',time:'2026-08-15 14:20'},
+{node:'二级审批',user:'王总',status:'已通过',opinion:'批准，请协调工厂排期',time:'2026-08-16 09:10'},
+{node:'关务审核',user:'赵六',status:'已通过',opinion:'关务审核通过，无合规风险',time:'2026-08-16 16:00'}
+],comments:[
+{user:'张经理',time:'2026-08-15 14:22',content:'已与工厂确认产能，可以提前安排'},
+{user:'王总',time:'2026-08-16 09:15',content:'注意控制额外成本，如有超支及时汇报'}
+]},
+'CR-2026-002':{timeline:[
+{node:'提交申请',user:'张三',status:'已通过',opinion:'市场需求增加，申请追加数量',time:'2026-08-16 14:20'},
+{node:'一级审批',user:'李经理',status:'已通过',opinion:'同意追加，已确认供应商产能',time:'2026-08-17 10:00'},
+{node:'二级审批',user:'李总',status:'已通过',opinion:'批准执行',time:'2026-08-17 15:30'}
+],comments:[
+{user:'李经理',time:'2026-08-17 10:05',content:'供应商确认可以追加100台，交期不变'}
+]},
+'CR-2026-003':{timeline:[
+{node:'提交申请',user:'李四',status:'已通过',opinion:'客户取消合作，申请取消需求',time:'2026-08-17 09:00'},
+{node:'一级审批',user:'张经理',status:'已通过',opinion:'确认客户已取消，同意关闭',time:'2026-08-17 11:30'},
+{node:'二级审批',user:'王总',status:'待办',opinion:'',time:''}
+],comments:[]},
+'CR-2026-005':{timeline:[
+{node:'提交申请',user:'赵六',status:'已通过',opinion:'紧急新增备货需求',time:'2026-08-19 08:45'},
+{node:'一级审批',user:'钱经理',status:'已通过',opinion:'情况紧急，建议快速审批',time:'2026-08-19 09:30'},
+{node:'二级审批',user:'王总',status:'已驳回',opinion:'当前库存充足，无需追加备货，请重新评估',time:'2026-08-19 14:00'}
+],comments:[
+{user:'王总',time:'2026-08-19 14:02',content:'请先核实当前库存数据，再决定是否追加'}
+]},
+'CR-2026-006':{timeline:[
+{node:'提交申请',user:'王五',status:'已通过',opinion:'市场调研调整，减少备货量',time:'2026-08-20 15:00'},
+{node:'一级审批',user:'李经理',status:'已通过',opinion:'同意调整',time:'2026-08-21 09:00'},
+{node:'二级审批',user:'李总',status:'已通过',opinion:'批准',time:'2026-08-21 14:30'}
+],comments:[]}
+};
+function openCrApproval(crNo){
+var row=null;for(var i=0;i<changeRecordRows.length;i++){if(changeRecordRows[i].crNo===crNo){row=changeRecordRows[i];break}}
+if(!row)return;
+var mock=crApprovalMock[crNo]||{timeline:[{node:'提交申请',user:row.applicant,status:'已通过',opinion:'提交变更申请',time:row.applyTime}],comments:[]};
+var statusColor={'已通过':'#138a4a','待办':'#1d5fd1','已驳回':'#c42626','草稿':'#667085'};
+var dotColor={'已通过':'#138a4a','待办':'#1d5fd1','已驳回':'#c42626'};
+// Title
+var titleHtml='<div style="display:flex;align-items:center;justify-content:space-between;padding:0 0 12px;border-bottom:1px solid #e8edf5;margin-bottom:14px">'
++'<div><span style="font-size:15px;font-weight:700;color:#173763">'+row.applicant+'提交的'+row.dt+'（审批单号：'+row.crApproval+'）</span></div>'
++'<div style="display:flex;gap:8px"><button class="btn ghost" onclick="alert(\'打印功能\')">&#128424; 打印</button><button class="btn ghost" onclick="alert(\'传阅功能\')">&#128228; 传阅</button><button class="btn ghost" onclick="backToChangeRecord()">&#8592; 返回</button></div></div>';
+// Left sections
+var sec1='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">基本信息</b></div>'
++'<div class="card" style="margin-bottom:14px"><div class="formgrid" style="grid-template-columns:repeat(3,1fr)">'
++'<div class="field"><label style="color:#98a2b3">需求类型</label><div style="color:#2b2f36;font-weight:500">'+row.dt+'</div></div>'
++'<div class="field"><label style="color:#98a2b3">变更类型</label><div style="color:#2b2f36;font-weight:500">'+row.crType+'</div></div>'
++'<div class="field"><label style="color:#98a2b3">申请人</label><div style="color:#2b2f36;font-weight:500">'+row.applicant+'</div></div>'
++'<div class="field"><label style="color:#98a2b3">申请时间</label><div style="color:#2b2f36;font-weight:500">'+row.applyTime+'</div></div>'
++'<div class="field"><label style="color:#98a2b3">关联原单号</label><div style="color:#2b2f36;font-weight:500">'+row.origDoc+'</div></div>'
++'<div class="field"><label style="color:#98a2b3">审批状态</label><div><span class="tag '+(row.approvalStatus==='已通过'?'green':row.approvalStatus==='审批中'?'blue':row.approvalStatus==='已驳回'?'red':'graytag')+'">'+row.approvalStatus+'</span></div></div>'
++'</div></div>';
+var sec2='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">变更明细</b></div>'
++'<div class="card" style="margin-bottom:14px"><div class="tablebox" style="max-height:200px"><table><thead><tr><th>产品编码</th><th>变更描述</th><th>进度影响</th><th>成本/风险说明</th><th>应对措施</th></tr></thead><tbody><tr>'
++'<td>'+row.pCode+'</td>'
++'<td style="max-width:180px;white-space:normal">'+row.crDesc+'</td>'
++'<td style="max-width:140px;white-space:normal">'+row.progressImpact+'</td>'
++'<td style="max-width:180px;white-space:normal">'+row.costRisk+'</td>'
++'<td style="max-width:140px;white-space:normal">'+row.action+'</td>'
++'</tr></tbody></table></div>'
++'<div style="margin-top:10px"><label style="color:#98a2b3;font-size:12px;display:block;margin-bottom:4px">变更原因</label><div style="background:#f8fafc;border:1px solid #e8edf5;border-radius:4px;padding:8px 10px;color:#2b2f36;font-size:13px;min-height:36px">'+row.crReason+'</div></div>'
++'</div>';
+var filesArr=(row.files||'').split(',').filter(Boolean);
+var filesListHtml=filesArr.length?filesArr.map(function(f,idx){
+return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #e8edf5;border-radius:6px;margin-bottom:6px;background:#fafbfc">'
++'<span style="font-size:20px">&#128196;</span>'
++'<div style="flex:1"><div style="color:#2b2f36;font-weight:500;font-size:13px">'+f+'</div><div style="color:#98a2b3;font-size:11px">'+(Math.floor(Math.random()*900+100))+' KB</div></div>'
++'<a onclick="alert(\'预览: '+f+'\')" style="color:#2f6edb;cursor:pointer;font-size:12px;padding:4px 8px;border:1px solid #2f6edb;border-radius:4px">预览</a>'
++'<a onclick="alert(\'下载: '+f+'\')" style="color:#fff;cursor:pointer;font-size:12px;padding:4px 8px;background:#2f6edb;border-radius:4px">下载</a>'
++'</div>'}).join(''):'<div style="color:#98a2b3;padding:12px">暂无附件</div>';
+var sec3='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:12px"><b style="color:#173763;font-size:13px">附件管理</b></div>'
++'<div class="card" style="margin-bottom:14px">'+filesListHtml+'</div>';
+// Right sidebar - timeline
+var tlHtml='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:10px"><b style="color:#173763;font-size:13px">审批记录</b></div>';
+mock.timeline.forEach(function(n,idx){
+var dc=dotColor[n.status]||'#98a2b3';
+var isLast=idx===mock.timeline.length-1;
+var initial=n.user.charAt(0);
+var avatarBg={'李':'#e8f1ff','张':'#e8f8ef','王':'#fff4e5','赵':'#ffecec','钱':'#f3e8ff'}[initial]||'#eef0f4';
+var avatarColor={'李':'#1d5fd1','张':'#138a4a','王':'#b86b00','赵':'#c42626','钱':'#7c3aed'}[initial]||'#667085';
+tlHtml+='<div style="display:flex;gap:10px;position:relative;padding-bottom:'+(isLast?'0':'20')+'px">'
++'<div style="display:flex;flex-direction:column;align-items:center;min-width:28px">'
++'<div style="width:28px;height:28px;border-radius:50%;background:'+avatarBg+';color:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">'+initial+'</div>'
++(isLast?'':'<div style="width:2px;flex:1;background:#e8edf5;margin-top:4px"></div>')
++'</div>'
++'<div style="flex:1;padding-top:2px">'
++'<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="font-weight:700;color:#2b2f36;font-size:13px">'+n.node+'</span><span class="tag" style="background:'+(dc==='#138a4a'?'#e8f8ef':dc==='#1d5fd1'?'#e8f1ff':dc==='#c42626'?'#ffecec':'#eef0f4')+';color:'+dc+'">'+n.status+'</span></div>'
++'<div style="color:#667085;font-size:12px">'+n.user+(n.time?' · '+n.time:'')+'</div>'
++(n.opinion?'<div style="color:#2b2f36;font-size:12px;margin-top:4px;background:#f8fafc;padding:6px 8px;border-radius:4px;border-left:2px solid '+dc+'">'+n.opinion+'</div>':'')
++'</div></div>'});
+// Comments tab
+var cmHtml='<div style="border-left:3px solid #2f6edb;padding-left:10px;margin-bottom:10px"><b style="color:#173763;font-size:13px">评论</b></div>';
+if(mock.comments.length){mock.comments.forEach(function(c){
+var initial=c.user.charAt(0);
+var avatarBg={'李':'#e8f1ff','张':'#e8f8ef','王':'#fff4e5','赵':'#ffecec'}[initial]||'#eef0f4';
+var avatarColor={'李':'#1d5fd1','张':'#138a4a','王':'#b86b00','赵':'#c42626'}[initial]||'#667085';
+cmHtml+='<div style="display:flex;gap:8px;margin-bottom:12px">'
++'<div style="width:28px;height:28px;border-radius:50%;background:'+avatarBg+';color:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">'+initial+'</div>'
++'<div style="flex:1"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span style="font-weight:600;color:#2b2f36;font-size:12px">'+c.user+'</span><span style="color:#98a2b3;font-size:11px">'+c.time+'</span></div>'
++'<div style="color:#2b2f36;font-size:12px;background:#f8fafc;padding:8px 10px;border-radius:6px">'+c.content+'</div></div></div>'})}else{cmHtml+='<div style="color:#98a2b3;font-size:12px;padding:8px 0">暂无评论</div>'}
+cmHtml+='<div style="margin-top:10px"><textarea placeholder="输入评论..." rows="2" style="width:100%;border:1px solid #d0d5dd;border-radius:4px;padding:6px 8px;font-size:12px;resize:vertical"></textarea><button class="btn" style="margin-top:6px;height:26px;font-size:12px" onclick="alert(\'评论已提交\')">提交评论</button></div>';
+// Render
+app.innerHTML='<div class="crumb">销售预测 / <b>需求变更记录</b> / 审批详情</div>'
++'<div style="display:flex;gap:14px;align-items:flex-start">'
++'<div style="flex:1;min-width:0">'+titleHtml+sec1+sec2+sec3+'</div>'
++'<div style="width:300px;flex-shrink:0">'
++'<div class="card" style="margin-bottom:12px">'
++'<div id="crSideTabs" style="display:flex;border-bottom:1px solid #e8edf5;margin-bottom:12px">'
++'<div class="tab on" data-stab="tl" style="padding:8px 14px;font-size:13px">审批记录</div>'
++'<div class="tab" data-stab="cm" style="padding:8px 14px;font-size:13px">评论</div></div>'
++'<div id="crSideTl">'+tlHtml+'</div>'
++'<div id="crSideCm" style="display:none">'+cmHtml+'</div>'
++'</div></div></div>';
+document.querySelectorAll('[data-stab]').forEach(function(t){t.onclick=function(){
+document.querySelectorAll('[data-stab]').forEach(function(x){x.classList.remove('on')});
+t.classList.add('on');
+document.getElementById('crSideTl').style.display=t.dataset.stab==='tl'?'':'none';
+document.getElementById('crSideCm').style.display=t.dataset.stab==='cm'?'':'none'}})}
+function backToChangeRecord(){changeRecordPage()}
 setPage('summary');
 </script>
 </body>
