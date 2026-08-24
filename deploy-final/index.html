@@ -260,27 +260,36 @@ function sumSubmitChangeApproval(){var idxs=selectedDetailIndexes();if(!idxs.len
 var apNo='CR-AP-'+String(Math.floor(Math.random()*900+100));
 var firstRow=detailRows[canSubmit[0]];
 var now=new Date();var applyTime=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
-var body='<div style="background:#f7faff;border:1px solid #e4e7ec;border-radius:6px;padding:12px 16px;margin-bottom:14px"><h3 style="color:#173763;margin:0;font-size:15px">销售预测3+9需求变更审批</h3></div>'
-+'<h4 style="color:#173763;margin:0 0 8px;font-size:14px">基本信息</h4>'
+var body='<h4 style="color:#173763;margin:0 0 8px;font-size:14px">基本信息</h4>'
 +'<div class="formgrid" style="margin-bottom:14px">'
-+'<div class="field"><label>审批单号</label><input value="'+apNo+'" disabled></div>'
-+'<div class="field"><label>申请人/时间</label><input value="张三 / '+applyTime+'" disabled></div>'
++'<div class="field"><label>变更审批单号</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">'+apNo+'</div></div>'
 +'<div class="field"><label>数据来源</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">销售预测3+9</div></div>'
++'<div class="field"><label>申请人姓名</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">张三</div></div>'
++'<div class="field"><label>申请时间</label><div style="color:#2b2f36;font-weight:500;padding:6px 0">'+applyTime+'</div></div>'
++'<div class="field"><label>应对措施</label><textarea id="sumApAction" rows="2" style="width:100%;border:1px solid #d0d5dd;border-radius:4px;padding:8px;font-family:inherit" placeholder="请输入应对措施"></textarea></div>'
++'<div class="field"><label>风险/成本说明</label><textarea id="sumApRisk" rows="2" style="width:100%;border:1px solid #d0d5dd;border-radius:4px;padding:8px;font-family:inherit" placeholder="请输入风险/成本说明"></textarea></div>'
 +'</div>'
-+'<div class="field" style="margin-bottom:14px"><label class="req">变更原因</label><textarea id="sumApReason" rows="2" style="width:100%;border:1px solid #d0d5dd;border-radius:4px;padding:8px;font-family:inherit" placeholder="请输入变更原因"></textarea></div>'
++'<h4 style="color:#173763;margin:0 0 8px;font-size:14px">变更原因</h4>'
++'<div class="field" style="margin-bottom:14px"><label class="req">变更原因</label><textarea id="sumApReason" rows="3" style="width:100%;border:1px solid #d0d5dd;border-radius:4px;padding:8px;font-family:inherit" placeholder="请输入变更原因..."></textarea></div>'
 +'<h4 style="color:#173763;margin:0 0 8px;font-size:14px">明细列表</h4>'
-+'<div class="tablebox" style="max-height:200px"><table><thead><tr><th>版本号</th><th>单据号</th><th>数据来源</th><th>产品编码</th><th>产品名称</th><th>数量</th></tr></thead><tbody>';
-canSubmit.forEach(function(i){var d=detailRows[i];body+='<tr><td>'+d.ver+'</td><td>'+d.doc+'</td><td>'+d.src+'</td><td>'+d.pCode+'</td><td>'+d.pName+'</td><td>'+d.qtyA+'</td></tr>'});
++'<div class="tablebox" style="max-height:220px"><table><thead><tr><th>变更类型</th><th>产品编码</th><th>预计交货日期(修改前)</th><th>预计交货日期(修改后)</th><th>需求数量(修改前)</th><th>需求数量(修改后)</th><th>选配</th><th>配置说明</th><th>原单据号</th><th>版本号</th></tr></thead><tbody>';
+canSubmit.forEach(function(i){var d=detailRows[i];body+='<tr><td>'+(d.changeType||'—')+'</td><td>'+d.pCode+'</td><td>'+d.dlvDate+'</td><td>'+(d.dlvDateModified||'—')+'</td><td>'+d.qtyB+'</td><td><b>'+d.qtyA+'</b></td><td>'+d.opt+'</td><td>'+d.cfg+'</td><td>'+d.doc+'</td><td>'+d.ver+'</td></tr>'});
 body+='</tbody></table></div>'
++'<div class="card" style="margin:8px 0 14px;padding:8px 12px"><div class="bar" style="justify-content:flex-end"><label>每页显示</label><select><option>10</option><option>20</option><option>50</option></select><span>总记录数：'+canSubmit.length+'</span><span>当前页码：1</span><button class="btn ghost">上一页</button><button class="btn ghost">下一页</button></div></div>'
 +'<h4 style="color:#173763;margin:14px 0 8px;font-size:14px">审批人信息</h4>'
 +'<div class="formgrid" style="margin-bottom:14px">'
-+'<div class="field"><label class="req">一级审批人</label><select id="sumAp1"><option value="">请选择</option><option>leader01 张经理</option><option>leader02 李经理</option></select></div>'
-+'<div class="field"><label>二级审批人</label><select id="sumAp2"><option value="">请选择</option><option>manager01 王总监</option></select></div>'
-+'<div class="field"><label>三级审批人</label><select id="sumAp3"><option value="">请选择</option><option>director01 刘总</option></select></div>'
++'<div class="field"><label class="req">一级审批人</label><select id="sumAp1"><option value="">请选择</option><option>leader01 张经理</option><option>leader02 李经理</option><option>leader03 周经理</option></select></div>'
++'<div class="field"><label>二级审批人</label><select id="sumAp2"><option value="">请选择（可选）</option><option>manager01 王总监</option><option>manager02 赵总监</option></select></div>'
++'<div class="field"><label>三级审批人</label><select id="sumAp3"><option value="">请选择（可选）</option><option>director01 刘总</option><option>director02 陈总</option></select></div>'
 +'</div>'
-+'<div class="field" style="margin-bottom:14px"><label>附件</label><input type="file" multiple><div class="hint">支持上传附件</div></div>';
++'<h4 style="color:#173763;margin:0 0 8px;font-size:14px">附件信息</h4>'
++'<div style="margin-bottom:8px"><button class="btn" onclick="sumApAddFile()" style="border-color:#2f6edb;color:#2f6edb">+ 添加附件</button></div>'
++'<div class="tablebox" style="max-height:150px"><table><thead><tr><th>文件名称</th><th>文件ID</th><th style="position:sticky;right:0;background:#f8fafc;z-index:4">操作</th></tr></thead><tbody id="sumApAttachBody"><tr><td colspan="3" style="text-align:center;color:#98a2b3;padding:16px">暂无附件，请点击「添加附件」上传</td></tr></tbody></table></div>';
 var foot='<button class="btn ghost" onclick="closeModal()" style="margin-right:8px">取消</button><button class="btn" onclick="sumDoLaunchChangeApproval(\''+apNo+'\','+JSON.stringify(canSubmit)+')">发起审批</button>';
 openModal('提交变更审批（审批单号'+apNo+'）',body,foot)}
+var _sumApFiles=[];
+function sumApAddFile(){var name='attachment_'+(_sumApFiles.length+1)+'_'+String(Math.floor(Math.random()*900+100))+'.pdf';var fid='ATT-'+Math.random().toString(36).substr(2,8).toUpperCase();_sumApFiles.push({name:name,id:fid});var tbody=document.getElementById('sumApAttachBody');if(!tbody)return;var html='';_sumApFiles.forEach(function(f,idx){html+='<tr><td>'+f.name+'</td><td>'+f.id+'</td><td style="position:sticky;right:0;background:#fff;z-index:3"><a onclick="sumApRemoveFile('+idx+')" style="color:#d92d20;cursor:pointer;margin-right:8px">删除</a><a onclick="apDownloadFile(\''+f.name+'\')" style="color:#2f6edb;cursor:pointer">下载</a></td></tr>'});tbody.innerHTML=html}
+function sumApRemoveFile(idx){_sumApFiles.splice(idx,1);var tbody=document.getElementById('sumApAttachBody');if(!tbody)return;if(!_sumApFiles.length){tbody.innerHTML='<tr><td colspan="3" style="text-align:center;color:#98a2b3;padding:16px">暂无附件，请点击「添加附件」上传</td></tr>';return}var html='';_sumApFiles.forEach(function(f,i){html+='<tr><td>'+f.name+'</td><td>'+f.id+'</td><td style="position:sticky;right:0;background:#fff;z-index:3"><a onclick="sumApRemoveFile('+i+')" style="color:#d92d20;cursor:pointer;margin-right:8px">删除</a><a onclick="apDownloadFile(\''+f.name+'\')" style="color:#2f6edb;cursor:pointer">下载</a></td></tr>'});tbody.innerHTML=html}
 function sumDoLaunchChangeApproval(apNo,idxsArr){
 var reason=document.getElementById('sumApReason').value.trim();
 if(!reason){alert('请填写变更原因！');return}
