@@ -152,7 +152,7 @@ function qMultiSelect(label, options, id) {
     + '<span class="multi-tags" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;min-height:24px"></span>'
     + '<span class="multi-placeholder" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#98a2b3;pointer-events:none">请选择</span>'
     + '<span class="multi-clear" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#98a2b3;cursor:pointer;font-size:14px;display:none" onclick="event.stopPropagation();clearMultiSelect(\'' + id + '\')">&times;</span>'
-    + '<div class="multi-dropdown" style="display:none;position:absolute;left:-1px;right:-1px;top:100%;background:#fff;border:1px solid #d0d5dd;border-radius:4px;max-height:200px;overflow-y:auto;z-index:1000;margin-top:2px;box-shadow:0 4px 12px rgba(0,0,0,0.15)">' + optsHtml + '</div>'
+    + '<div class="multi-dropdown" onclick="event.stopPropagation()" style="display:none;position:absolute;left:-1px;right:-1px;top:100%;background:#fff;border:1px solid #d0d5dd;border-radius:4px;max-height:200px;overflow-y:auto;z-index:1000;margin-top:2px;box-shadow:0 4px 12px rgba(0,0,0,0.15)">' + optsHtml + '</div>'
     + '</div>'
     + '<input type="hidden" class="multi-value" id="' + id + '_value">'
     + '</div>';
