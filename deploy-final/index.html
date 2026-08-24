@@ -467,12 +467,12 @@ function placeholder(p){const name={history:'历史销售预测',certain:'确定
 function openModal(title,body,foot){modalTitle.innerHTML=title;modalBody.innerHTML=body;modalFoot.innerHTML=foot||'<button class="btn ghost" onclick="closeModal()">关闭</button>';modalMask.style.display='flex';document.getElementById('modal').classList.toggle('small',title.includes('确认'))}function closeModal(){modalMask.style.display='none'}function exportFile(name,desc){let now=new Date(),pad=n=>String(n).padStart(2,'0');let fmt=name.includes('比例')?`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}：${pad(now.getMinutes())}：${pad(now.getSeconds())}`:`${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;let file=`${name}_${fmt}.xlsx`;alert(`导出成功：${file}\n${desc}\n系统按当前查询条件导出全部匹配数据，不受分页限制，并按登录账号角色数据权限导出。`)}
 // === 需求变更记录 Mock 数据 ===
 let changeRecordRows=[
-{crNo:'CR-2026-001',crType:'交期提前',dt:'新品上市需求提报',origDoc:'FX-AP-2026-002',pCode:'P1001',crDesc:'客户要求提前30天交货',crReason:'市场推广计划提前',progressImpact:'需提前安排生产排期',costRisk:'可能影响其他订单交货时间',action:'已协调工厂提前生产',applicant:'李四',applyTime:'2026-08-15 10:30',origApproval:'AP-PASS-002',crApproval:'CR-AP-001',approvalStatus:'已通过',approver:'王总',files:'需求变更说明.pdf,客户确认函.pdf'},
-{crNo:'CR-2026-002',crType:'数量调增',dt:'退市产品需求提报',origDoc:'FX-AP-2026-004',pCode:'P2001',crDesc:'追加备货数量100台',crReason:'市场需求增加',progressImpact:'需增加产能',costRisk:'供应商产能有限',action:'已联系供应商增加产能',applicant:'张三',applyTime:'2026-08-16 14:20',origApproval:'AP-PASS-004',crApproval:'CR-AP-002',approvalStatus:'已通过',approver:'李总',files:'市场调研报告.xlsx'},
-{crNo:'CR-2026-003',crType:'取消需求',dt:'其他类型',origDoc:'FX-AP-2026-006',pCode:'P3001',crDesc:'取消该需求订单',crReason:'客户取消合作',progressImpact:'无',costRisk:'已产生部分物料成本',action:'停止采购相关物料',applicant:'李四',applyTime:'2026-08-17 09:00',origApproval:'AP-PASS-006',crApproval:'CR-AP-003',approvalStatus:'审批中',approver:'—',files:'客户取消通知函.pdf'},
-{crNo:'CR-2026-004',crType:'交期延后',dt:'MTS备货',origDoc:'FX-AP-2026-001',pCode:'P1001',crDesc:'延后交货15天',crReason:'仓库容量不足',progressImpact:'延后入库时间',costRisk:'无额外成本',action:'已协调仓库扩容',applicant:'张三',applyTime:'2026-08-18 11:30',origApproval:'AP-PASS-001',crApproval:'—',approvalStatus:'草稿',approver:'—',files:''},
-{crNo:'CR-2026-005',crType:'新增需求',dt:'风险备货',origDoc:'—',pCode:'P2001',crDesc:'新增紧急备货需求',crReason:'突发大客户需求',progressImpact:'需紧急采购物料',costRisk:'物料采购成本增加15%',action:'已启动紧急采购流程',applicant:'赵六',applyTime:'2026-08-19 08:45',origApproval:'—',crApproval:'CR-AP-005',approvalStatus:'已驳回',approver:'王总',files:'紧急需求说明.pdf,客户订单.pdf'},
-{crNo:'CR-2026-006',crType:'数量调减',dt:'新品上市需求提报',origDoc:'FX-AP-2026-003',pCode:'P3001',crDesc:'减少备货数量50台',crReason:'前期市场调研调整',progressImpact:'减少生产排期',costRisk:'无',action:'已调整生产计划',applicant:'王五',applyTime:'2026-08-20 15:00',origApproval:'AP-PASS-003',crApproval:'CR-AP-006',approvalStatus:'已通过',approver:'李总',files:'市场调研调整报告.pdf'}
+{crNo:'CR-2026-001',crType:'交期提前',dataSource:'例外需求',dt:'新品上市需求提报',origDoc:'FX-AP-2026-002',pCode:'P1001',crDesc:'客户要求提前30天交货',crReason:'市场推广计划提前',progressImpact:'需提前安排生产排期',costRisk:'可能影响其他订单交货时间',action:'已协调工厂提前生产',applicant:'李四',applyTime:'2026-08-15 10:30',origApproval:'AP-PASS-002',crApproval:'CR-AP-001',approvalStatus:'已通过',approver:'王总',files:'需求变更说明.pdf,客户确认函.pdf'},
+{crNo:'CR-2026-002',crType:'数量调增',dataSource:'例外需求',dt:'退市产品需求提报',origDoc:'FX-AP-2026-004',pCode:'P2001',crDesc:'追加备货数量100台',crReason:'市场需求增加',progressImpact:'需增加产能',costRisk:'供应商产能有限',action:'已联系供应商增加产能',applicant:'张三',applyTime:'2026-08-16 14:20',origApproval:'AP-PASS-004',crApproval:'CR-AP-002',approvalStatus:'已通过',approver:'李总',files:'市场调研报告.xlsx'},
+{crNo:'CR-2026-003',crType:'取消需求',dataSource:'历史销售预测',dt:'其他类型',origDoc:'FX-AP-2026-006',pCode:'P3001',crDesc:'取消该需求订单',crReason:'客户取消合作',progressImpact:'无',costRisk:'已产生部分物料成本',action:'停止采购相关物料',applicant:'李四',applyTime:'2026-08-17 09:00',origApproval:'AP-PASS-006',crApproval:'CR-AP-003',approvalStatus:'审批中',approver:'—',files:'客户取消通知函.pdf'},
+{crNo:'CR-2026-004',crType:'交期延后',dataSource:'确定性需求',dt:'MTS备货',origDoc:'FX-AP-2026-001',pCode:'P1001',crDesc:'延后交货15天',crReason:'仓库容量不足',progressImpact:'延后入库时间',costRisk:'无额外成本',action:'已协调仓库扩容',applicant:'张三',applyTime:'2026-08-18 11:30',origApproval:'AP-PASS-001',crApproval:'—',approvalStatus:'草稿',approver:'—',files:''},
+{crNo:'CR-2026-005',crType:'新增需求',dataSource:'历史销售预测',dt:'风险备货',origDoc:'—',pCode:'P2001',crDesc:'新增紧急备货需求',crReason:'突发大客户需求',progressImpact:'需紧急采购物料',costRisk:'物料采购成本增加15%',action:'已启动紧急采购流程',applicant:'赵六',applyTime:'2026-08-19 08:45',origApproval:'—',crApproval:'CR-AP-005',approvalStatus:'已驳回',approver:'王总',files:'紧急需求说明.pdf,客户订单.pdf'},
+{crNo:'CR-2026-006',crType:'数量调减',dataSource:'例外需求',dt:'新品上市需求提报',origDoc:'FX-AP-2026-003',pCode:'P3001',crDesc:'减少备货数量50台',crReason:'前期市场调研调整',progressImpact:'减少生产排期',costRisk:'无',action:'已调整生产计划',applicant:'王五',applyTime:'2026-08-20 15:00',origApproval:'AP-PASS-003',crApproval:'CR-AP-006',approvalStatus:'已通过',approver:'李总',files:'市场调研调整报告.pdf'}
 ];
 function changeRecordPage(){
 app.innerHTML='<div class="crumb">销售预测 / <b>需求变更记录</b></div>'
@@ -494,20 +494,20 @@ app.innerHTML='<div class="crumb">销售预测 / <b>需求变更记录</b></div>
 +'<div id="crTable"></div>';
 crRenderTable(changeRecordRows)}
 function crRenderTable(rows){
-var cols=['','变更单号','变更类型','需求类型','原单号','产品编码','变更描述','变更原因','进度影响','成本/风险说明','应对措施','申请人','申请时间','原审批单号','变更审批单号','审批状态','附件'];
+var cols=['','变更单号','变更类型','数据来源','需求类型','原单号','产品编码','变更描述','变更原因','进度影响','成本/风险说明','应对措施','申请人','申请时间','原审批单号','变更审批单号','审批状态','附件','操作'];
 var html='<div class="tablebox"><table><thead><tr>'+cols.map(function(c){return c===''?'<th style="width:36px"><input type="checkbox" onclick="crToggleAll(this)"></th>':'<th>'+c+'</th>'}).join('')+'</tr></thead><tbody>';
 if(!rows.length){html+='<tr><td colspan="'+cols.length+'" style="text-align:center;padding:30px;color:#98a2b3">暂无数据</td></tr>'}
 rows.forEach(function(r,i){
 var statusCls=r.approvalStatus==='已通过'?'green':r.approvalStatus==='审批中'?'blue':r.approvalStatus==='已驳回'?'red':'graytag';
 var filesArr=(r.files||'').split(',').filter(Boolean);
 var filesHtml=filesArr.length?filesArr.map(function(f){return'<a onclick="alert(\'预览: '+f+'\')" style="color:#173763;cursor:pointer;font-size:11px;margin-right:4px">'+f+'</a>'}).join(''):'<span style="color:#98a2b3">无</span>';
-var crTypeLink='<a onclick="crNavigateToDetail(\''+r.origDoc+'\',\''+r.pCode+'\')" style="color:#2f6edb;cursor:pointer;font-weight:500">'+r.crType+'</a>';
 html+='<tr>'
 +'<td><input type="checkbox" data-idx="'+i+'" class="crRowCb"></td>'
 +'<td style="color:#2f6edb;font-weight:700">'+r.crNo+'</td>'
-+'<td>'+crTypeLink+'</td>'
++'<td>'+r.crType+'</td>'
++'<td>'+r.dataSource+'</td>'
 +'<td>'+r.dt+'</td>'
-+'<td>'+(r.origDoc&&r.origDoc!=='\u2014'?'<a onclick="crNavigateToDetail(\''+r.origDoc+'\',\''+r.pCode+'\')" style="color:#2f6edb;cursor:pointer">'+r.origDoc+'</a>':r.origDoc)+'</td>'
++'<td>'+r.origDoc+'</td>'
 +'<td>'+r.pCode+'</td>'
 +'<td style="max-width:150px;white-space:normal;word-break:break-all">'+r.crDesc+'</td>'
 +'<td style="max-width:150px;white-space:normal;word-break:break-all">'+r.crReason+'</td>'
@@ -520,10 +520,12 @@ html+='<tr>'
 +'<td>'+(r.crApproval&&r.crApproval!=='\u2014'?'<a onclick="openCrApproval(\''+r.crNo+'\')" style="color:#2f6edb;cursor:pointer;font-weight:700">'+r.crApproval+'</a>':r.crApproval)+'</td>'
 +'<td><span class="tag '+statusCls+'">'+r.approvalStatus+'</span></td>'
 +'<td style="max-width:160px">'+filesHtml+'</td>'
++'<td style="position:sticky;right:0;background:#fff;z-index:3"><a onclick="crGoDetail(\''+r.dataSource+'\',\''+r.origDoc+'\',\''+r.pCode+'\')" style="color:#2f6edb;cursor:pointer;font-weight:500">详情</a></td>'
 +'</tr>'});
 html+='</tbody></table></div>';
 html+='<div class="card" style="margin-top:10px"><div class="bar" style="justify-content:flex-end"><label>每页显示</label><select><option>10</option><option>20</option><option>50</option><option>100</option></select><span>总记录数：'+rows.length+'</span><span>当前页码：1</span><button class="btn ghost">上一页</button><button class="btn ghost">下一页</button></div></div>';
 document.getElementById('crTable').innerHTML=html}
+function crGoDetail(dataSource,origDoc,pCode){if(dataSource==='例外需求'){setPage('exception');alert('跳转至例外需求详情页\n原单号：'+origDoc+'\n产品编码：'+pCode)}else if(dataSource==='历史销售预测'){setPage('summary');alert('跳转至销售预测3+9需求汇总详情页\n原单号：'+origDoc+'\n产品编码：'+pCode)}else{alert('跳转至确定性需求详情页\n原单号：'+origDoc+'\n产品编码：'+pCode)}}
 function crDoQuery(){
 var f1=document.getElementById('crF1').value.trim();
 var f2=document.getElementById('crF2').value;
